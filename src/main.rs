@@ -1,54 +1,18 @@
-// use std::borrow::Borrow;
-//datime crate (chrono?)
-//iter is a borrow of the thing
-//into_iter is an owned version
 use reqwest::Error;
 use crate::regular_season::{FantasySchedule, FantasyWeek};
 use crate::scheduled_games::Games;
-
 mod my_sports_feed_profile;
 mod scheduled_games;
 mod regular_season;
 
+
 #[tokio::main]
 async fn main () -> Result<(), Error> {
 
-    let our_week = FantasySchedule::get_start_week(&FantasySchedule {});
-    let first_day = our_week.start.format("%Y%m%d").to_string();
-    let last_day = our_week.end.format("%Y%m%d").to_string();
-
-    // let game: serde_json::Value = reqwest::Client::new()
-    // for day in week_one.iter() {
-    let mut daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
-    let mut second_daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
-    let mut third_daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+    let this_week = get_week_insights(2);
 
     println!("---------- FIRST DAY ----------");
-
-    // let first_games: serde_json::Value = reqwest::Client::new()
-    let first_games: scheduled_games::Games = reqwest::Client::new()
-            .get(second_daily_url + &first_day)
-            .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
-            .send()
-            .await?
-            .json()
-            .await?;
-
-    println!("{:#?}", first_games);
-
-    println!("---------- LAST DAY ----------");
-
-    // let last_games: serde_json::Value = reqwest::Client::new()
-    let last_games: scheduled_games::Games = reqwest::Client::new()
-        .get(third_daily_url + &last_day)
-        .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    println!("{:#?}", last_games);
-    // }
+    // println!("{:#?}", this_week.iter_mut());
 
     Ok(())
 }
@@ -56,6 +20,7 @@ async fn main () -> Result<(), Error> {
 
 async fn get_week_insights(week: u64) -> Games
 {
+    println!("--You're not here either--");
     let mut daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
     let our_week = FantasySchedule::get_start_week(&FantasySchedule {});
     let first_day = our_week.start.format("%Y%m%d").to_string();
@@ -73,6 +38,7 @@ async fn get_week_insights(week: u64) -> Games
             .await
             .unwrap();
 
+        println!("--You're not here--");
         return first_games;
     }
 
@@ -86,11 +52,18 @@ async fn get_week_insights(week: u64) -> Games
         .await
         .unwrap();
 
+    println!("--You're here--");
+    println!("{:#?}", games);
+
     return games;
 }
 
 
 
+// use std::borrow::Borrow;
+//datime crate (chrono?)
+//iter is a borrow of the thing
+//into_iter is an owned version
 
 
 // ----------------------------------------------------------------------------
