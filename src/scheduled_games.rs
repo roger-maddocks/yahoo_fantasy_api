@@ -3,35 +3,35 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {
-    games: Vec<Game>,
+    pub games: Vec<Game>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Game {
-    schedule: Schedule,
-    score: Score,
+pub struct Game {
+    pub schedule: Schedule,
+    pub score: Score,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Score {
-    away_score_total: Option<i32>,
-    home_score_total: Option<i32>,
+pub struct Score {
+    pub away_score_total: Option<i32>,
+    pub home_score_total: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Schedule {
-    away_team: Team,
-    home_team: Team,
-    start_time: String,
+pub struct Schedule {
+    pub away_team: Team,
+    pub home_team: Team,
+    pub start_time: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Hash, Eq)]
 #[serde(rename_all = "camelCase")]
-struct Team {
-    abbreviation: String,
+pub struct Team {
+    pub abbreviation: String,
 }
 
 impl IntoIterator for Game {
@@ -53,5 +53,11 @@ impl Iterator for GameIntoIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         todo!()
+    }
+}
+
+impl PartialEq for Team {
+    fn eq(&self, other:&Team) -> bool {
+        self.abbreviation == other.abbreviation
     }
 }

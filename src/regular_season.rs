@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+use std::vec::IntoIter;
 use chrono::NaiveDate;
 use chrono::DateTime;
 use chrono::Days;
@@ -7,50 +9,95 @@ pub struct FantasySchedule {
 }
 
 impl FantasySchedule {
-
     pub fn get_start_week(&self) -> FantasyWeek {
         return FantasyWeek {
             start: NaiveDate::from_ymd_opt(2023, 10, 10).unwrap(),
             end: NaiveDate::from_ymd_opt(2023, 10, 21).unwrap(),
-        }
+        };
     }
 
     pub fn get_week(&self, week_number: u64) -> FantasyWeek {
-
         return FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 9, 10).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 16, 21).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
+            start: NaiveDate::from_ymd_opt(2023, 10, 10).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
+            end: NaiveDate::from_ymd_opt(2023, 10, 21).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
         };
     }
-
-    pub fn get_week_sloppy_dumb_ass(&self, week_number: u64) -> FantasyWeek {
-        let mut this_week = FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 9, 10).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 16, 21).unwrap(),
-        };
-
-        this_week.start = this_week.start.checked_add_days(Days::new(week_number * 7)).unwrap();
-        this_week.end = this_week.end.checked_add_days(Days::new(week_number * 7)).unwrap();
-
-        return this_week;
-    }
-
-    // TODO format the weird all star week
-    // pub fn get_all_star_week(&self) -> FantasyWeek {
-        // return FantasyWeek {
-        //     start: (),
-        //     end: ()
-        // }
-    // }
-    // TODO
-
 }
 
 #[derive(Debug)]
 pub struct FantasyWeek {
-    pub start: chrono::NaiveDate,
-    pub end: chrono::NaiveDate,
+    pub start: NaiveDate,
+    pub end: NaiveDate,
 }
+
+
+// TODO format the weird all star week
+// pub fn get_all_star_week(&self) -> FantasyWeek {
+// return FantasyWeek {
+//     start: (),
+//     end: ()
+// }
+// }
+// TODO
+
+// impl IntoIterator for FantasyWeek {
+//     type Item = NaiveDate;
+//     type IntoIter = FantasyWeekIntoIterator;
+//
+//     fn into_iter(self) -> Self::IntoIter {
+//         FantasyWeekIntoIterator {
+//             fantasy_week: self,
+//             index:  0
+//         }
+//     }
+// }
+
+// pub struct FantasyWeekIntoIterator {
+//     fantasy_week: FantasyWeek,
+//     index: u64
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+// impl<'a> IntoIterator for &'a FantasyWeek {
+//     type Item = NaiveDate;
+//     type IntoIter = FantasyWeekIterator<'a>;
+//
+//     fn into_iter(self) -> Self::IntoIter {
+//         FantasyWeekIterator {
+//             fantasy_week: self,
+//             index: 0
+//         }
+//     }
+// }
+//
+// struct FantasyWeekIterator<'a> {
+//     fantasy_week: &'a FantasyWeek,
+//     index: u64
+// }
+//
+// impl<'a> Iterator for FantasyWeekIterator<'a> {
+//     type Item = &'a NaiveDate;
+//
+//     fn next(&mut self) -> Option<NaiveDate> {
+//         let current_day = self.fantasy_week.start.checked_add_days(Days::new(self.index)).unwrap();
+//         if current_day <= self.fantasy_week.end {
+//             self.index += 1;
+//             Some(current_day)
+//         } else {
+//             None
+//         }
+//     }
+// }
 
 // pub fn iter_weeks(&self) -> Iter<FantasyWeek> {
 // }
