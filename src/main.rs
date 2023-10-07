@@ -12,77 +12,71 @@ mod regular_season;
 #[tokio::main]
 async fn main () -> Result<(), Error> {
 
-    let this_week = executor::block_on(get_week_insights(2));
-
-    println!("---------- FIRST DAY ----------");
+    executor::block_on(get_week_insights(2));
 
     Ok(())
 }
 
 
-async fn get_week_insights(week: u64) -> Games
+async fn get_week_insights(week: u64) -> ()
 {
     // let our_week = FantasySchedule::get_start_week(&FantasySchedule {});
-    let week_two = FantasySchedule::get_week(&FantasySchedule {}, 2);
+    let this_week = FantasySchedule::get_week(&FantasySchedule {}, 2);
+
     let mut game_count: HashMap<&Team, i32>;
+    let mut index: i32 = 0;
 
-    for i in week_two.start.iter_days().take(7).enumerate() {
-        let mut daily_game = get_daily_games(i.1);
-        game_count.extend(Some(daily_game));
-    };
+    for i in this_week.start.iter_days().take(7).enumerate() {
+        let mut daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+        let first_day = this_week.start.format("%Y%m%d").to_string();
 
+        let this_week: Games = reqwest::Client::new()
+            .get(daily_url + &first_day)
+            .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+
+        println!("{:#?}", index);
+        // println!("{:#?}", this_week.games[0].score);
+
+        let mut home_teams: Vec<_> = this_week.games
+            .iter()
+            .map(|this_game| &this_game.schedule.home_team)
+            .collect();
+
+        let mut away_teams: Vec<_> = this_week.games
+            .iter()
+            .map(|this_game| &this_game.schedule.away_team)
+            .collect();
+
+        println!("{:#?}", home_teams);
+        println!("{:#?}", away_teams);
+
+
+        let mut game_count = HashMap::new();
+        for team in home_teams {
+            match game_count.get(team) {
+                Some(count) => { game_count.insert(team, count+1); }
+                None => { game_count.insert(team, 1); }
+            };
+        }
+
+        for team in away_teams {
+            match game_count.get(team) {
+                Some(count) => { game_count.insert(team, count+1); }
+                None => { game_count.insert(team, 1); }
+            };
+        }
+        println!("{:#?}", game_count);
+        println!("{:#?}", index);
+        index += 1
+    }
 }
 
-async fn get_daily_games(date: NaiveDate) -> HashMap<&'static Team, i32>{
-    let mut daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
-    let first_day = date.format("%Y%m%d").to_string();
-
-    let this_week: Games = reqwest::Client::new()
-        .get(daily_url + &first_day)
-        .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
-        .send()
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
-
-    println!("{:#?}", this_week.games.iter());
-    println!("{:#?}", this_week.games[0].score);
-
-    let mut home_teams: Vec<_> = this_week.games
-        .iter()
-        .map(|this_game| &this_game.schedule.home_team)
-        .collect();
-
-    let mut away_teams: Vec<_> = this_week.games
-        .iter()
-        .map(|this_game| &this_game.schedule.away_team)
-        .collect();
-
-    println!("{:#?}", home_teams);
-    println!("{:#?}", away_teams);
-
-
-    let mut game_count = HashMap::new();
-    for team in home_teams {
-        match game_count.get(team) {
-            Some(count) => { game_count.insert(team, count+1); }
-            None => { game_count.insert(team, 1); }
-        };
-    }
-
-    for team in away_teams {
-        match game_count.get(team) {
-            Some(count) => { game_count.insert(team, count+1); }
-            None => { game_count.insert(team, 1); }
-        };
-    }
-
-    println!("{:#?}", game_count);
-
-    return game_count;
-}
 
 
 
