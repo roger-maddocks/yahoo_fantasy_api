@@ -1,9 +1,11 @@
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use serde::de::DeserializeOwned;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {
-    pub games: Vec<Game>,
+    pub games: Vec<Game>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,6 +48,22 @@ impl IntoIterator for Game {
 pub struct GameIntoIterator {
     game: Game,
     index: usize,
+}
+
+impl Game {
+}
+
+impl Games {
+    pub fn get_weekly_games() -> Result<Games, reqwest::Error> {
+
+        Ok(Games { games: vec![] })
+    }
+
+    pub fn get_daily_games(&self, day: NaiveDate) -> Result<Games, reqwest::Error> {
+
+        Ok(Games { games: vec![] })
+    }
+
 }
 
 impl Iterator for GameIntoIterator {

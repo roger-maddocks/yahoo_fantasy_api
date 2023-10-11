@@ -3,8 +3,9 @@ use std::vec::IntoIter;
 use chrono::NaiveDate;
 use chrono::DateTime;
 use chrono::Days;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FantasySchedule {
 }
 
@@ -24,7 +25,7 @@ impl FantasySchedule {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FantasyWeek {
     pub start: NaiveDate,
     pub end: NaiveDate,
