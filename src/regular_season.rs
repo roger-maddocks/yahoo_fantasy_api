@@ -19,8 +19,8 @@ impl FantasySchedule {
 
     pub fn get_week(&self, week_number: u64) -> FantasyWeek {
         return FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 10, 10).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 10, 21).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
+            start: NaiveDate::from_ymd_opt(2023, 10, 2).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
+            end: NaiveDate::from_ymd_opt(2023, 10, 8).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
         };
     }
 }

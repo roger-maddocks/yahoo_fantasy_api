@@ -3,6 +3,8 @@ use chrono::{Days, Duration, NaiveDate, Weekday};
 use futures::executor;
 use reqwest::Error;
 use crate::regular_season::{FantasySchedule, FantasyWeek};
+use crate::roster_builder::Roster;
+pub mod roster_builder;
 use crate::scheduled_games::{Games, Team};
 mod my_sports_feed_profile;
 mod scheduled_games;
@@ -12,15 +14,22 @@ mod regular_season;
 #[tokio::main]
 async fn main () -> Result<(), Error> {
 
+    // let &mut game_count: HashMap<&Team, &i32>  = HashMap::new();
+    let my_roster = &Roster::new();
+    let this_weeks_games = &Games{ games: vec![] };
+    executor::block_on(get_roster(my_roster));
     executor::block_on(get_week_insights(2));
-
+    print!("{:?}", my_roster);
     Ok(())
 }
 
+async fn get_roster(my_roster: &Roster) ->  () {
+    my_roster.add_player("MISTERRR SVECHNIKOVVVVVV")
+}
 
 async fn get_week_insights(week: u64) -> ()
 {
-    //
+    //get specified week of season
     let this_week = FantasySchedule::get_week(&FantasySchedule {}, week);
 
     let mut game_count: HashMap<&Team, i32>;
@@ -50,8 +59,8 @@ async fn get_week_insights(week: u64) -> ()
             .map(|this_game| &this_game.schedule.away_team)
             .collect();
 
-        println!("{:?}", home_teams);
-        println!("{:?}", away_teams);
+        println!("Home: {:?}", home_teams);
+        println!("Away: {:?}", away_teams);
 
 
         let mut game_count = HashMap::new();
