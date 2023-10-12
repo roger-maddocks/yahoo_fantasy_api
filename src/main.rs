@@ -18,7 +18,8 @@ async fn main () -> Result<(), Error> {
     let my_roster = &Roster::new();
     let this_weeks_games = &Games{ games: vec![] };
     executor::block_on(get_roster(my_roster));
-    executor::block_on(get_week_insights(2));
+    executor::block_on(get_week_insights(1));
+
     print!("{:?}", my_roster);
     Ok(())
 }
@@ -48,6 +49,9 @@ async fn get_week_insights(week: u64) -> ()
             .json()
             .await
             .unwrap();
+
+        println!("Home: {:#?}", this_week);
+
 
         let mut home_teams: Vec<_> = this_week.games
             .iter()

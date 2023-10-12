@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use serde::de::DeserializeOwned;
@@ -54,6 +55,11 @@ impl Game {
 }
 
 impl Games {
+    pub fn new() -> Games {
+        Games {
+            games: vec![]
+        }
+    }
     pub fn get_weekly_games() -> Result<Games, reqwest::Error> {
 
         Ok(Games { games: vec![] })
