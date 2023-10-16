@@ -13,7 +13,9 @@ mod regular_season;
 
 #[tokio::main]
 async fn main () -> Result<(), Error> {
-    executor::block_on(get_week_insights(1));
+    let game_count = executor::block_on(get_week_insights(2));
+
+    println!("{:?}", game_count.iter());
 
     // let &mut game_count: HashMap<&Team, &i32>  = HashMap::new();
     // let my_roster = &Roster::new();
@@ -28,7 +30,7 @@ async fn get_roster(my_roster: &Roster) ->  () {
     my_roster.add_player("MISTERRR SVECHNIKOVVVVVV")
 }
 
-async fn get_week_insights(week: u64) -> ()
+async fn get_week_insights(week: u64) -> HashMap<Team, i32>
 {
     //get specified week of season
     let this_week = FantasySchedule::get_week(&FantasySchedule {}, week);
@@ -38,6 +40,7 @@ async fn get_week_insights(week: u64) -> ()
     let mut game_count = HashMap::new();
     let mut  games_today: Games;
     let mut home_teams: Vec<Team>;
+    let mut away_teams: Vec<Team>;
     let mut index: i64 = 0;
 
     for i in this_week.start.iter_days().take(7).enumerate() {
@@ -64,10 +67,10 @@ async fn get_week_insights(week: u64) -> ()
             .map(|this_game| this_game.schedule.home_team.clone())
             .collect();
 
-        // let mut away_teams: Vec<_> = this_week.games
-        //     .iter()
-        //     .map(|this_game| &this_game.schedule.away_team)
-        //     .collect();
+        away_teams = games_today.games
+            .iter()
+            .map(|this_game| this_game.schedule.away_team.clone())
+            .collect();
 
         println!("Home: {:?}", home_teams);
         // println!("Away: {:?}", away_teams);
@@ -79,17 +82,17 @@ async fn get_week_insights(week: u64) -> ()
                 None => { game_count.insert(team.clone(), 1); }
             };
         }
-        //
-        // for team in away_teams {
-        //     match game_count.get(team) {
-        //         Some(count) => { game_count.insert(team, count+1); }
-        //         None => { game_count.insert(team, 1); }
-        //     };
-        // }
-        println!("{:?}", game_count);
+
+        for team in away_teams {
+            match game_count.get(&team) {
+                Some(count) => { game_count.insert(team.clone(), count+1); }
+                None => { game_count.insert(team.clone(), 1); }
+            };
+        }
         println!("{:?}", index);
         index += 1
     }
 
     println!("{:?}", dumb_count);
+    game_count
 }
