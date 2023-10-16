@@ -37,7 +37,7 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
 
     let mut dumb_count = HashMap::new();
     let mut game_count = HashMap::new();
-    let mut  games_today: Games;
+    let mut games_today: Games;
     let mut home_teams: Vec<Team>;
     let mut away_teams: Vec<Team>;
     let mut index: i64 = 0;
@@ -74,24 +74,23 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
         println!("Home: {:?}", home_teams);
         // println!("Away: {:?}", away_teams);
 
+        count_games(&mut game_count, &home_teams);
+        count_games(&mut game_count, &away_teams);
 
-        for team in home_teams {
-            match game_count.get(&team) {
-                Some(count) => { game_count.insert(team.clone(), count+1); }
-                None => { game_count.insert(team.clone(), 1); }
-            };
-        }
-
-        for team in away_teams {
-            match game_count.get(&team) {
-                Some(count) => { game_count.insert(team.clone(), count+1); }
-                None => { game_count.insert(team.clone(), 1); }
-            };
-        }
         println!("{:?}", index);
         index += 1
     }
 
     println!("{:?}", dumb_count);
     game_count
+}
+
+fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>) -> () {
+    for team in team_collection {
+        match game_count.get(&team) {
+            Some(count) => { game_count.insert(team.clone(), count+1); }
+            None => { game_count.insert(team.clone(), 1); }
+        };
+    }
+
 }
