@@ -38,8 +38,8 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
     let mut dumb_count = HashMap::new();
     let mut game_count = HashMap::new();
     let mut games_today: Games;
-    let mut home_teams: Vec<Team>;
-    let mut away_teams: Vec<Team>;
+    let mut home_teams: Vec<Team> = vec![];
+    let mut away_teams: Vec<Team> = vec![];
     let mut index: i64 = 0;
 
     for _ in this_week.start.iter_days().take(7).enumerate() {
@@ -60,6 +60,9 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
 
 
         dumb_count.insert(String::from("Anything"), 200);
+
+        // parse_daily_schedule(home_teams, &games_today);
+        // parse_daily_schedule(&away_teams, &games_today);
 
         home_teams =  games_today.games
             .iter()
@@ -92,5 +95,11 @@ fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>)
             None => { game_count.insert(team.clone(), 1); }
         };
     }
-
 }
+
+// fn parse_daily_schedule(teams: &mut Vec<Team>, games_today: &Games) -> () {
+//     teams = games_today.games
+//         .iter()
+//         .map(|this_game| this_game.schedule.away_team.clone())
+//         .collect();
+// }
