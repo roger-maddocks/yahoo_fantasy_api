@@ -1,8 +1,8 @@
 use std::collections::HashMap;
-use chrono::{Days, Duration, NaiveDate, Weekday};
+use chrono::{ Duration };
 use futures::executor;
 use reqwest::Error;
-use crate::regular_season::{FantasySchedule, FantasyWeek};
+use crate::regular_season::{ FantasySchedule };
 use crate::roster_builder::Roster;
 pub mod roster_builder;
 use crate::scheduled_games::{Games, Team};
@@ -35,7 +35,6 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
     //get specified week of season
     let this_week = FantasySchedule::get_week(&FantasySchedule {}, week);
 
-    let mut game_count: HashMap<&Team, i32>;
     let mut dumb_count = HashMap::new();
     let mut game_count = HashMap::new();
     let mut  games_today: Games;
@@ -43,8 +42,8 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
     let mut away_teams: Vec<Team>;
     let mut index: i64 = 0;
 
-    for i in this_week.start.iter_days().take(7).enumerate() {
-        let mut daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+    for _ in this_week.start.iter_days().take(7).enumerate() {
+        let daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
         let first_day = this_week.start + Duration::days(index);
 
         games_today = reqwest::Client::new()
