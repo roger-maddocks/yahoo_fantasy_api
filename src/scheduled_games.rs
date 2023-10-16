@@ -1,7 +1,5 @@
-use std::cell::RefCell;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use serde::de::DeserializeOwned;
 
 #[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,19 +7,34 @@ pub struct Games {
     pub games: Vec<Game>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Game {
     pub schedule: Schedule,
     pub score: Score,
+    
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl Clone for Game {
+    fn clone(&self) -> Self {
+        Game{
+            schedule: self.schedule.clone(),
+            score: self.score.clone()
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Score {
     pub away_score_total: Option<i32>,
     pub home_score_total: Option<i32>,
 }
+
+// impl Clone for Score {
+//     fn clone(&self) -> Self {
+//     }
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,10 +44,30 @@ pub struct Schedule {
     pub start_time: String,
 }
 
+
+impl Clone for Schedule {
+    fn clone(&self) -> Self {
+        Schedule {
+            away_team: self.away_team.clone(),
+            home_team: self.home_team.clone(),
+            start_time: self.start_time.clone(),
+
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Hash, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Team {
     pub abbreviation: String,
+}
+impl Clone for Team {
+    fn clone(&self) -> Self {
+        Team
+        {
+            abbreviation: self.abbreviation.clone(),
+        }
+    }
 }
 
 impl IntoIterator for Game {
