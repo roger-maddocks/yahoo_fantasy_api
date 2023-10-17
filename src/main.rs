@@ -23,6 +23,8 @@ async fn main () -> Result<(), Error> {
         .iter()
         .filter_map(|(key, val)| if val.clone() == 4 {Some(key)} else {None}));
 
+    println!("{:?}", max_count);
+
     Ok(())
 }
 
