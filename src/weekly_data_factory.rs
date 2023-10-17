@@ -4,6 +4,7 @@ use reqwest::Error;
 use crate::regular_season::{FantasySchedule, FantasyWeek};
 use crate::scheduled_games::{Games};
 use crate::team::Team;
+use crate::collision_report::{CollisionReport};
 
 ///
 ///
@@ -64,7 +65,7 @@ pub async fn teams_playing_four_or_more(week: u64, this_week: &FantasyWeek) -> H
     for (key, value) in game_count.iter() {
         if *value >= 4 {
             max_count.insert(key.clone(), value.clone());
-            println!("Team: {} | Games: {}  ", key.abbreviation, value);
+
         }
         continue
     }
@@ -83,6 +84,13 @@ async fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
     }
 }
 
-async fn collision_report(first_team: &Team, second_team: &Team) {
+async fn collision_report(collision_params: CollisionReport) {
+    //if yearly_report > override start/end dates with const from current week until last week of year
+
+    //get games for collision_params.start_date until collision_params.end_date
+
+    //iter each day and if both collision_params.first_team and collision_params.second_team show up:
+    //>>> add to collection collisions_by_week<week i32, collision_count i32>
+    //>>> increment collision total
 
 }
