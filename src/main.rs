@@ -15,21 +15,12 @@ mod team;
 #[tokio::main]
 async fn main () -> Result<(), Error> {
 
-    let game_count = get_week_insights(2).await;
-    let mut max_count = HashMap::new();
-
-    for (key, value) in game_count.iter() {
-        println!("Team: {} ", key.abbreviation);
-        println!("    Number of Games: {} ", value);
-        if *value == 4 {
-            max_count.insert(key.clone(), value.clone());
-        }
-        continue
-    }
-
-    println!("{:?}", game_count);
-
-    println!("{:?}", max_count);
+    get_week_insights(1).await;
+    get_week_insights(2).await;
+    get_week_insights(3).await;
+    get_week_insights(4).await;
+    get_week_insights(5).await;
+    get_week_insights(6).await;
 
     Ok(())
 }
@@ -76,6 +67,20 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
         index += 1
     }
 
+    let mut max_count = HashMap::new();
+
+    println!("///// WEEK {} //////", week);
+    for (key, value) in game_count.iter() {
+        if *value >= 4 {
+            max_count.insert(key.clone(), value.clone());
+            println!("Team: {} | Games: {}  ", key.abbreviation, value);
+        }
+        continue
+    }
+
+    // println!("{:?}", max_count);
+
+    println!("////////////////");
     game_count
 }
 
