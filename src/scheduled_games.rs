@@ -13,7 +13,6 @@ pub struct Games {
 pub struct Game {
     pub schedule: Schedule,
     pub score: Score,
-    
 }
 
 impl Clone for Game {

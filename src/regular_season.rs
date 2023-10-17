@@ -23,6 +23,13 @@ impl FantasySchedule {
             end: NaiveDate::from_ymd_opt(2023, 10, 8).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
         };
     }
+
+    pub fn get_week_range(&self, first_week_of_range: u64, last_week_of_range: u64) -> FantasyWeek {
+        return FantasyWeek {
+            start: NaiveDate::from_ymd_opt(2023, 10, 2).unwrap().checked_add_days(Days::new(first_week_of_range * 7)).unwrap(),
+            end: NaiveDate::from_ymd_opt(2023, 10, 8).unwrap().checked_add_days(Days::new(last_week_of_range * 7)).unwrap(),
+        };
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
