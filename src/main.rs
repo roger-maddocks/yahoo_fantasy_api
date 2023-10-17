@@ -1,27 +1,33 @@
 use std::collections::HashMap;
 use chrono::{ Duration };
-use futures::executor;
 use reqwest::Error;
 use crate::regular_season::{ FantasySchedule };
-use crate::roster_builder::Roster;
 pub mod roster_builder;
-use crate::scheduled_games::{Games, Team};
+use crate::scheduled_games::{Games};
+use crate::team::Team;
 mod my_sports_feed_profile;
 mod scheduled_games;
 mod regular_season;
+mod team;
+
 
 
 #[tokio::main]
 async fn main () -> Result<(), Error> {
 
     let game_count = get_week_insights(2).await;
-    let max_count =  game_count
-        .iter()
-        .filter_map(|(key, val)| if val.clone() == 4 {Some(key)} else {None});
+    let mut max_count = HashMap::new();
 
-    println!("{:?}", game_count
-        .iter()
-        .filter_map(|(key, val)| if val.clone() == 4 {Some(key)} else {None}));
+    for (key, value) in game_count.iter() {
+        println!("Team: {} ", key.abbreviation);
+        println!("    Number of Games: {} ", value);
+        if *value == 4 {
+            max_count.insert(key.clone(), value.clone());
+        }
+        continue
+    }
+
+    println!("{:?}", game_count);
 
     println!("{:?}", max_count);
 

@@ -1,5 +1,6 @@
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use crate::team::Team;
 
 #[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -44,7 +45,6 @@ pub struct Schedule {
     pub start_time: String,
 }
 
-
 impl Clone for Schedule {
     fn clone(&self) -> Self {
         Schedule {
@@ -55,21 +55,6 @@ impl Clone for Schedule {
         }
     }
 }
-
-#[derive(Debug, Serialize, Deserialize, Hash, Eq)]
-#[serde(rename_all = "camelCase")]
-pub struct Team {
-    pub abbreviation: String,
-}
-impl Clone for Team {
-    fn clone(&self) -> Self {
-        Team
-        {
-            abbreviation: self.abbreviation.clone(),
-        }
-    }
-}
-
 impl IntoIterator for Game {
     type Item = ();
     type IntoIter = GameIntoIterator;
@@ -100,6 +85,8 @@ impl Games {
 
     pub fn get_daily_games(&self, day: NaiveDate) -> Result<Games, reqwest::Error> {
 
+        if day.leap_year() { }
+
         Ok(Games { games: vec![] })
     }
 
@@ -110,11 +97,5 @@ impl Iterator for GameIntoIterator {
 
     fn next(&mut self) -> Option<Self::Item> {
         todo!()
-    }
-}
-
-impl PartialEq for Team {
-    fn eq(&self, other:&Team) -> bool {
-        self.abbreviation == other.abbreviation
     }
 }
