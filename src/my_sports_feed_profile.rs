@@ -12,8 +12,8 @@ impl MySportsFeedProfile {
 
 #[derive(Default)]
 pub struct ProfileBuilder {
-    api_key: String,
-    api_pw: String
+    pub api_key: String,
+    pub api_pw: String
 }
 
 impl ProfileBuilder {

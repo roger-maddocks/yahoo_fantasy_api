@@ -10,6 +10,7 @@ mod scheduled_games;
 mod regular_season;
 mod team;
 mod weekly_data_factory;
+mod collision_report;
 
 
 #[tokio::main]

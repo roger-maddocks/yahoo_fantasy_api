@@ -16,7 +16,6 @@ impl Clone for Team {
     }
 }
 
-
 impl PartialEq for Team {
     fn eq(&self, other:&Team) -> bool {
         self.abbreviation == other.abbreviation

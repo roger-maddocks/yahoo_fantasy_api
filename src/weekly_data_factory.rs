@@ -82,3 +82,7 @@ async fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
         };
     }
 }
+
+async fn collision_report(first_team: &Team, second_team: &Team) {
+
+}
