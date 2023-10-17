@@ -13,21 +13,17 @@ mod regular_season;
 
 #[tokio::main]
 async fn main () -> Result<(), Error> {
-    let game_count = executor::block_on(get_week_insights(2));
 
-    println!("{:?}", game_count.iter());
+    let game_count = get_week_insights(2).await;
+    let max_count =  game_count
+        .iter()
+        .filter_map(|(key, val)| if val.clone() == 4 {Some(key)} else {None});
 
-    // let &mut game_count: HashMap<&Team, &i32>  = HashMap::new();
-    // let my_roster = &Roster::new();
-    // let this_weeks_games = &Games{ games: vec![] };
-    // executor::block_on(get_roster(my_roster));
-    // println!("{:?}", my_roster);
+    println!("{:?}", game_count
+        .iter()
+        .filter_map(|(key, val)| if val.clone() == 4 {Some(key)} else {None}));
 
     Ok(())
-}
-
-async fn get_roster(my_roster: &Roster) ->  () {
-    my_roster.add_player("MISTERRR SVECHNIKOVVVVVV")
 }
 
 async fn get_week_insights(week: u64) -> HashMap<Team, i32>
@@ -35,7 +31,6 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
     //get specified week of season
     let this_week = FantasySchedule::get_week(&FantasySchedule {}, week);
 
-    let mut dumb_count = HashMap::new();
     let mut game_count = HashMap::new();
     let mut games_today: Games;
     let mut home_teams: Vec<Team> = vec![];
@@ -56,14 +51,6 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
             .await
             .unwrap();
 
-        // println!("Home: {:#?}", games_today);
-
-
-        dumb_count.insert(String::from("Anything"), 200);
-
-        // parse_daily_schedule(home_teams, &games_today);
-        // parse_daily_schedule(&away_teams, &games_today);
-
         home_teams =  games_today.games
             .iter()
             .map(|this_game| this_game.schedule.home_team.clone())
@@ -74,21 +61,17 @@ async fn get_week_insights(week: u64) -> HashMap<Team, i32>
             .map(|this_game| this_game.schedule.away_team.clone())
             .collect();
 
-        println!("Home: {:?}", home_teams);
-        // println!("Away: {:?}", away_teams);
+        count_games(&mut game_count, &home_teams).await;
+        count_games(&mut game_count, &away_teams).await;
 
-        count_games(&mut game_count, &home_teams);
-        count_games(&mut game_count, &away_teams);
-
-        println!("{:?}", index);
+        println!("Processing day {:?}.", index+1);
         index += 1
     }
 
-    println!("{:?}", dumb_count);
     game_count
 }
 
-fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>) -> () {
+async fn count_games(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>) -> () {
     for team in team_collection {
         match game_count.get(&team) {
             Some(count) => { game_count.insert(team.clone(), count+1); }
