@@ -30,7 +30,7 @@ struct Schedule {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Team {
+pub struct Team {
     abbreviation: String,
 }
 

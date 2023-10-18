@@ -1,3 +1,4 @@
 [env]
 MY_SPORTS_FEEDS_PASSWORD="MYSPORTSFEEDS"
 MY_SPORTS_FEEDS_API_KEY="163db9fd-bdbe-4bd4-a4b8-15324f"
+PULL_URL="https://api.mysportsfeeds.com/v2.1/xsd/nhl/seasonal"

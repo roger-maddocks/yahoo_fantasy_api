@@ -9,6 +9,9 @@ use crate::scheduled_games::Games;
 mod my_sports_feed_profile;
 mod scheduled_games;
 mod regular_season;
+mod player;
+mod player_data_factory;
+mod collision_report;
 
 #[tokio::main]
 async fn main () -> Result<(), Error> {

@@ -7,7 +7,6 @@ pub struct FantasySchedule {
 }
 
 impl FantasySchedule {
-
     pub fn get_start_week(&self) -> FantasyWeek {
         return FantasyWeek {
             start: NaiveDate::from_ymd_opt(2023, 10, 10).unwrap(),
@@ -16,23 +15,10 @@ impl FantasySchedule {
     }
 
     pub fn get_week(&self, week_number: u64) -> FantasyWeek {
-
         return FantasyWeek {
             start: NaiveDate::from_ymd_opt(2023, 9, 10).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
             end: NaiveDate::from_ymd_opt(2023, 16, 21).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
         };
-    }
-
-    pub fn get_week_sloppy_dumb_ass(&self, week_number: u64) -> FantasyWeek {
-        let mut this_week = FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 9, 10).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 16, 21).unwrap(),
-        };
-
-        this_week.start = this_week.start.checked_add_days(Days::new(week_number * 7)).unwrap();
-        this_week.end = this_week.end.checked_add_days(Days::new(week_number * 7)).unwrap();
-
-        return this_week;
     }
 
     // TODO format the weird all star week
@@ -48,8 +34,8 @@ impl FantasySchedule {
 
 #[derive(Debug)]
 pub struct FantasyWeek {
-    pub start: chrono::NaiveDate,
-    pub end: chrono::NaiveDate,
+    pub start: NaiveDate,
+    pub end: NaiveDate,
 }
 
 // pub fn iter_weeks(&self) -> Iter<FantasyWeek> {
