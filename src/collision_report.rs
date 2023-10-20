@@ -15,7 +15,7 @@ pub struct CollisionReport {
     start_week: NaiveDate,
     end_week: NaiveDate,
     season_collisions: i8,
-    weekly_collisions: HashMap(i8, i8) //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
+    weekly_collisions: HashMap<i8, i8> //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
 }
 
 impl CollisionReport {
@@ -24,7 +24,7 @@ impl CollisionReport {
                start_week: NaiveDate,
                end_week: NaiveDate,
                season_collisions: i8,
-               weekly_collisions: HashMap(i8, i8)) -> Self {
+               weekly_collisions: HashMap<i8, i8>) -> Self {
         Self { player_ayy, player_bee, start_week, end_week, season_collisions, weekly_collisions }
     }
     pub fn default() -> Self {

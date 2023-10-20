@@ -6,6 +6,7 @@ use crate::team::Team;
 #[serde(rename_all = "camelCase")]
 pub struct Games {
     pub games: Vec<Game>
+
 }
 
 #[derive(Debug, Serialize, serde::Deserialize)]

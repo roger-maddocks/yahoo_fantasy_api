@@ -1,6 +1,5 @@
 use crate::collision_report::CollisionReport;
-use crate::scheduled_games::{Team};
-
+use crate::Team;
 
 enum Position {
     Center,
@@ -17,22 +16,26 @@ enum NhlFranchise {
 pub struct Player  {
     pub first_name: String,
     pub last_name: String,
-    pub position: Position,
-    pub current_team: NhlFranchise
+    pub position: Vec<Position>,
+    pub current_team: NhlFranchise,
+    pub prioritize: bool
 }
 
 impl Player {
-    pub fn default() -> Self {
-        Self
+    pub fn new() {
+        
     }
+    // pub fn default() -> Self {
+    //     Self
+    // }
 
 }
 
 
 
-pub fn collides_with(/*&self,*/ player_in_question: Player, ) -> CollisionReport {
+// pub fn collides_with(/*&self,*/ player_in_question: Player, ) -> CollisionReport {
 
-    collisions: CollisionReport::default();
-
-    collisions
-}
+    // collisions: CollisionReport::default();
+    //
+    // collisions
+// }
