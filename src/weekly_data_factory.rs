@@ -1,9 +1,33 @@
 use std::collections::HashMap;
 use chrono::{ Duration };
 use reqwest::Error;
-use crate::regular_season::{FantasySchedule, FantasyWeek};
+use crate::fantasy_week::{FantasyWeek};
 use crate::scheduled_games::{Games};
 use crate::team::Team;
+use crate::report::Report;
+
+
+
+pub async fn get_week_reports (start_week: u64, end_week: u64) -> Report {
+
+    let this_week= FantasyWeek::get_week_range(&FantasyWeek {
+                start:  Default::default(),
+                end: Default::default()
+            }, start_week, end_week );
+
+    let mut full_report = Report{ fantasy_weeks: vec![], teams_playing_four_or_more: Default::default() };
+
+    for week in start_week .. end_week {
+        full_report
+            .teams_playing_four_or_more
+            .push(teams_playing_four_or_more(start_week, &this_week[week]))
+    }
+    //needs to iterate each week in range
+
+    full_report
+
+
+}
 
 ///
 ///
