@@ -35,6 +35,7 @@ impl FantasyWeek {
         FantasyWeek::new(&self, week_number, week_number)
     }
 
+    //can be changed to array due to known size? Any benefit?
     pub fn get_week_range(&self, first_week_of_range: u64, last_week_of_range: u64) -> Vec<FantasyWeek> {
         let mut all_weeks = vec![];
         for week in first_week_of_range .. last_week_of_range + 1 {

@@ -12,6 +12,7 @@ mod team;
 mod weekly_data_factory;
 mod report;
 mod fantasy_week;
+mod collision_report;
 
 
 #[tokio::main]

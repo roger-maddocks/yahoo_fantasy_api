@@ -20,7 +20,7 @@ pub async fn get_week_reports (start_week: u64, end_week: u64) -> Report {
     for week in start_week .. end_week {
         full_report
             .teams_playing_four_or_more
-            .push(teams_playing_four_or_more(start_week, &this_week[week]))
+            .push(teams_playing_four_or_more(week, &this_week[week]))
     }
     //needs to iterate each week in range
 
