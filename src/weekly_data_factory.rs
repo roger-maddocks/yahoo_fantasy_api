@@ -100,23 +100,27 @@ pub async fn teams_playing_four_or_more(week: u64, this_week: &FantasyWeek) -> H
         continue
     }
 
-
-    println!("Teams front-loaded ///////");
+    println!("//////////////////////////////");
+    println!("Teams ONLY front-loaded //////");
     for (key, value) in front_heavy_teams.iter() {
         if *value >= 3 {
-            println!("Team: {} | Games: {}  ", key.abbreviation, value);
+            if game_count.get_key_value(key) != Some((&key, &4)) {
+                println!("Team: {} | Games: {} | Front heavy ONLY lineup ", key.abbreviation, value);
+            }
         }
         continue
     }
 
-    println!("Teams back-loaded ///////");
+    println!("//////////////////////////////");
+    println!("Teams ONLY back-loaded ///////");
     for (key, value) in back_heavy_teams.iter() {
         if *value >= 3 {
-            println!("Team: {} | Games: {}  ", key.abbreviation, value);
+            if game_count.get_key_value(key) != Some((&key, &4)) {
+                println!("Team: {} | Games: {} | Back heavy ONLY lineup ", key.abbreviation, value);
+            }
         }
         continue
     }
-
     println!("////////////////////");
     println!();
     game_count
@@ -127,33 +131,15 @@ async fn count_games(game_count: &mut HashMap<Team, i32>, home_team_collection: 
     let home_clone = home_team_collection.clone();
     let away_clone = away_team_collection.clone();
 
+    update_load_count(game_count, &this_clone, home_clone);
+    update_load_count(game_count, &this_clone, away_clone);
+}
+
+fn update_load_count(game_count: &mut HashMap<Team, i32>, this_clone: &HashMap<Team, i32>, home_clone: Vec<Team>) {
     for team in home_clone {
         match this_clone.get(&team) {
-            Some(count) => { game_count.insert(team.clone(), count+1); }
-            None => { game_count.insert(team.clone(), 1); }
-        }
-    }
-
-    for team in away_clone {
-        match this_clone.get(&team) {
-            Some(count) => { game_count.insert(team.clone(), count+1); }
+            Some(count) => { game_count.insert(team.clone(), count + 1); }
             None => { game_count.insert(team.clone(), 1); }
         }
     }
 }
-
-// async fn determine_game_load(game_count: &mut HashMap<Team, i32>, home_team_collection: &Vec<Team>, away_team_collection: &Vec<Team>) -> () {
-//     for team in home_team_collection {
-//         match game_count.get(&team) {
-//             Some(count) => { game_count.insert(team.clone(), count+1); }
-//             None => { game_count.insert(team.clone(), 1); }
-//         };
-//     }
-//
-//     for team in away_team_collection {
-//         match game_count.get(&team) {
-//             Some(count) => { game_count.insert(team.clone(), count+1); }
-//             None => { game_count.insert(team.clone(), 1); }
-//         };
-//     }
-// }
