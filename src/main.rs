@@ -14,7 +14,7 @@ mod collision_report;
 
 #[tokio::main]
 async fn main () -> Result<(), Error> {
-    for i in 2..= 5 {
+    for i in 4 ..= 4  {
         let this_week = FantasyWeek::new(i, i);
         weekly_data_factory::teams_playing_four_or_more(i, &this_week).await;
     }

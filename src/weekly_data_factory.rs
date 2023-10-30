@@ -65,8 +65,13 @@ pub async fn teams_playing_four_or_more(week: u64, this_week: &FantasyWeek) -> H
         // count_games(&mut game_count, &away_teams).await;
 
         match index {
-            x if x < 5 =>
+            x if x < 3 =>
                 count_games(&mut front_heavy_teams, &home_teams, &away_teams).await,
+            x if x == 3 =>
+                {
+                    count_games(&mut front_heavy_teams, &home_teams, &away_teams).await;
+                    count_games(&mut back_heavy_teams, &home_teams, &away_teams).await;
+                }
             x if x > 3 =>
                 count_games(&mut back_heavy_teams, &home_teams, &away_teams).await,
             _ => panic!("Error trying to get front/back heavy schedules")
@@ -80,8 +85,17 @@ pub async fn teams_playing_four_or_more(week: u64, this_week: &FantasyWeek) -> H
 
     for (key, value) in game_count.iter() {
         if *value >= 4 {
+            let mut update_string = "";
             // max_count.insert(key.clone(), value.clone());
-            println!("Team: {} | Games: {}  ", key.abbreviation, value);
+            if front_heavy_teams.get_key_value(key) == Some((&key, &3)) {
+                println!("Team: {} | Games: {} | Front heavy lineup ", key.abbreviation, value);
+            }
+            else if back_heavy_teams.get_key_value(key) == Some((&key, &3)) {
+                println!("Team: {} | Games: {} | Back heavy lineup ", key.abbreviation, value);
+            }
+            else {
+                println!("Team: {} | Games: {}  ", key.abbreviation, value);
+            }
         }
         continue
     }
