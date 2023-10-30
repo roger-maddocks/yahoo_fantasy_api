@@ -1,43 +1,29 @@
-use std::borrow::Borrow;
-use std::vec::IntoIter;
-use chrono::NaiveDate;
-use chrono::DateTime;
-use chrono::Days;
-use serde::{Deserialize, Serialize};
+// use std::borrow::Borrow;
+// use std::vec::IntoIter;
+// use chrono::NaiveDate;
+// use chrono::DateTime;
+// use chrono::Days;
+// use serde::{Deserialize, Serialize};
+// use crate::fantasy_week::FantasyWeek;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FantasySchedule {
-}
-
-impl FantasySchedule {
-    pub fn get_start_week(&self) -> FantasyWeek {
-        return FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 10, 10).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 10, 21).unwrap(),
-        };
-    }
-
-    pub fn get_week(&self, week_number: u64) -> FantasyWeek {
-        return FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 10, 2).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 10, 8).unwrap().checked_add_days(Days::new(week_number * 7)).unwrap(),
-        };
-    }
-
-    pub fn get_week_range(&self, first_week_of_range: u64, last_week_of_range: u64) -> FantasyWeek {
-        return FantasyWeek {
-            start: NaiveDate::from_ymd_opt(2023, 10, 2).unwrap().checked_add_days(Days::new(first_week_of_range * 7)).unwrap(),
-            end: NaiveDate::from_ymd_opt(2023, 10, 8).unwrap().checked_add_days(Days::new(last_week_of_range * 7)).unwrap(),
-        };
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct FantasyWeek {
-    pub start: NaiveDate,
-    pub end: NaiveDate,
-}
-
+// #[derive(Debug, Serialize, Deserialize)]
+// pub struct FantasySchedule {
+// }
+//
+// impl FantasySchedule {
+//     pub fn get_start_week(&self) -> FantasyWeek {
+//         FantasyWeek::new( &self, 1, 1)
+//     }
+//
+//     pub fn get_week(&self, week_number: u64) -> FantasyWeek {
+//         FantasyWeek::new( &self, week_number, week_number)
+//     }
+//
+//     pub fn get_week_range(&self, first_week_of_range: u64, last_week_of_range: u64) -> FantasyWeek {
+//         FantasyWeek::new( &self, first_week_of_range, last_week_of_range)
+//     }
+// }
+//
 
 // TODO format the weird all star week
 // pub fn get_all_star_week(&self) -> FantasyWeek {

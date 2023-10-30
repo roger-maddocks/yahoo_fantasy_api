@@ -9,8 +9,8 @@ enum RegularSeason {
     FinalWeek((NaiveDate, NaiveDate)),
 }
 pub struct CollisionReport {
-    player_ayy: Player,
-    player_bee: Player,
+    player_ayy: Option<Player>,
+    player_bee: Option<Player>,
     start_week: NaiveDate,
     end_week: NaiveDate,
     season_collisions: i8,
@@ -21,8 +21,8 @@ pub struct CollisionReport {
 /// Player A : Player B :
 ///
 impl CollisionReport {
-    pub fn new(player_ayy: Player,
-               player_bee: Player,
+    pub fn new(player_ayy: Option<Player>,
+               player_bee: Option<Player>,
                start_week: NaiveDate,
                end_week: NaiveDate,
                season_collisions: i8,
@@ -31,8 +31,8 @@ impl CollisionReport {
     }
     pub fn default() -> Self {
         Self {
-            player_ayy: Player::new(),
-            player_bee: Player::new(),
+            player_ayy: Some(Player::new()),
+            player_bee: Some(Player::new()),
             start_week: Default::default(),
             end_week: Default::default(),
             season_collisions: 0,

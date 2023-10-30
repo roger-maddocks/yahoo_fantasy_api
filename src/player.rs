@@ -1,14 +1,15 @@
 use crate::collision_report::CollisionReport;
+use crate::player::NhlFranchise::ColoradoAvalanche;
 use crate::Team;
 
-enum Position {
+pub enum Position {
     Center,
     LeftWing,
     RightWing,
     Defense,
     Goalie
 }
-enum NhlFranchise {
+pub enum NhlFranchise {
     FloridaPanthers(Team),
     ColoradoAvalanche(Team),
     BuffaloSabers(Team),
@@ -17,14 +18,19 @@ pub struct Player  {
     pub first_name: String,
     pub last_name: String,
     pub position: Vec<Position>,
-    pub current_team: NhlFranchise,
     pub prioritize: bool
 }
 
 impl Player {
-    pub fn new() {
-        
+    pub fn new() -> Player {
+        Self {
+            first_name: "".to_string(),
+            last_name: "".to_string(),
+            position: vec![],
+            prioritize: false,
+        }
     }
+
     // pub fn default() -> Self {
     //     Self
     // }
