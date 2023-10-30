@@ -1,10 +1,10 @@
-use std::borrow::Borrow;
-use std::vec::IntoIter;
+
+
 use chrono::NaiveDate;
-use chrono::DateTime;
+
 use chrono::Days;
 use serde::{Deserialize, Serialize};
-use crate::player::{Player, Position};
+use crate::player::{Position};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FantasyWeek {
@@ -42,7 +42,7 @@ impl FantasyWeek {
         all_weeks
     }
 
-    pub fn get_top_free_agent_scorers(&self, position: Position) {
+    pub fn get_top_free_agent_scorers(&self, _position: Position) {
         //query Yahoo league for FA
         //Grab top X (5?) by points scored in the previous week
         //if Position not supplied, just top 5 overall scorers

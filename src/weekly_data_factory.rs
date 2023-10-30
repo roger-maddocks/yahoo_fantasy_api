@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use chrono::{ Duration };
-use reqwest::Error;
+
 use crate::scheduled_games::{Games};
 use crate::team::Team;
 use crate::fantasy_week::FantasyWeek;
