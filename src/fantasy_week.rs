@@ -1,7 +1,4 @@
-
-
 use chrono::NaiveDate;
-
 use chrono::Days;
 use serde::{Deserialize, Serialize};
 use crate::player::{Position};
@@ -21,11 +18,11 @@ impl FantasyWeek {
         }
     }
 
-    pub fn get_start_week(&self) -> FantasyWeek {
+    pub fn get_season_start_week(&self) -> FantasyWeek {
         FantasyWeek::new(1, 1)
     }
 
-    pub fn get_end_week(&self) -> FantasyWeek {
+    pub fn get_season_end_week(&self) -> FantasyWeek {
         FantasyWeek::new(26, 26)
     }
 
@@ -40,12 +37,6 @@ impl FantasyWeek {
             all_weeks.push( FantasyWeek::new(week, week))
         }
         all_weeks
-    }
-
-    pub fn get_top_free_agent_scorers(&self, _position: Position) {
-        //query Yahoo league for FA
-        //Grab top X (5?) by points scored in the previous week
-        //if Position not supplied, just top 5 overall scorers
     }
 }
 

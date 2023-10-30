@@ -1,5 +1,3 @@
-
-
 use crate::Team;
 
 pub enum Position {
