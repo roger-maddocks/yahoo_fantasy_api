@@ -3,22 +3,7 @@ use chrono::{Duration, NaiveDate};
 use crate::scheduled_games::{Games};
 use crate::team::Team;
 use crate::fantasy_week::FantasyWeek;
-
-async fn get_games_for_day(date: &NaiveDate) -> Games {
-    let daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
-
-    let games_today = reqwest::Client::new()
-        .get(daily_url + &*date.format("%Y%m%d").to_string())
-        .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
-        .send()
-        .await
-        .unwrap()
-        .json()
-        .await
-        .unwrap();
-
-    games_today
-}
+use crate::report::Report;
 
 ///
 ///
@@ -36,70 +21,80 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
 /// ```
 pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> HashMap<Team, i32>
 {
-    let mut game_count = HashMap::new();
-    let mut front_heavy_teams = HashMap::new(); //teams with 3 games Monday - Thursday
-    let mut back_heavy_teams = HashMap::new(); //teams with 3 games Thursday - Sunday
-    let mut games_today: Games;
-    let mut home_teams: Vec<Team> = vec![];
-    let mut away_teams: Vec<Team> = vec![];
-    let mut index: i64 = 0;
-    // let mut max_count = HashMap::new();
+    //move all into report struct
+    let mut report = Report::new(vec![], HashMap::new(), vec![], HashMap::new(), HashMap::new(), HashMap::new(), Games{ games: vec![] }, vec![], vec![], 0);
 
     for _ in this_week.start.iter_days().take(7).enumerate() {
 
-        let day = this_week.start + Duration::days(index);
+        let day = this_week.start + Duration::days(report.index);
         // println!("{}",day);
-        games_today = get_games_for_day(&day).await;
+        report.games_today = get_games_for_day(&day).await;
 
-        home_teams =  games_today.games
+        report.home_teams =  report.games_today.games
             .iter()
             .map(|this_game| this_game.schedule.home_team.clone())
             .collect();
 
-        away_teams = games_today.games
+        report.away_teams = report.games_today.games
             .iter()
             .map(|this_game| this_game.schedule.away_team.clone())
             .collect();
 
-        count_games(&mut game_count, &home_teams.clone(), &away_teams.clone()).await;
+        count_games(&mut report.game_count, &report.home_teams.clone(), &report.away_teams.clone()).await;
         // count_games(&mut game_count, &away_teams).await;
 
-        match index {
+        match report.index {
             x if x < 3 =>
-                count_games(&mut front_heavy_teams, &home_teams, &away_teams).await,
+                count_games(&mut report.front_heavy_teams, &report.home_teams, &report.away_teams).await,
             x if x == 3 =>
                 {
-                    count_games(&mut front_heavy_teams, &home_teams, &away_teams).await;
-                    count_games(&mut back_heavy_teams, &home_teams, &away_teams).await;
+                    count_games(&mut report.front_heavy_teams, &report.home_teams, &report.away_teams).await;
+                    count_games(&mut report.back_heavy_teams, &report.home_teams, &report.away_teams).await;
                 }
             x if x > 3 =>
-                count_games(&mut back_heavy_teams, &home_teams, &away_teams).await,
+                count_games(&mut report.back_heavy_teams, &report.home_teams, &report.away_teams).await,
             _ => panic!("Error trying to get front/back heavy schedules")
         }
 
         // println!("Processing day {:?}.", index+1);
-        index += 1
+        report.index += 1
     }
 
-    teams_with_four_games(week, &mut game_count, &mut front_heavy_teams, &mut back_heavy_teams);
-    get_overloaded_teams(&mut game_count, &mut front_heavy_teams, "front loaded");
-    get_overloaded_teams(&mut game_count, &mut back_heavy_teams, "back loaded");
+    teams_with_four_games(week, &mut report.game_count, &mut report.front_heavy_teams, &mut report.back_heavy_teams);
+    get_overloaded_teams(&mut report.game_count, &mut report.front_heavy_teams, "front loaded");
+    get_overloaded_teams(&mut report.game_count, &mut report.back_heavy_teams, "back loaded");
 
     println!();
     println!();
     println!();
-    game_count
+    report.teams_playing_four_or_more
+}
+
+async fn get_games_for_day(date: &NaiveDate) -> Games {
+    let daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+
+    let games_today = reqwest::Client::new()
+        .get(daily_url + &*date.format("%Y%m%d").to_string())
+        .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
+        .send()
+        .await
+        .unwrap()
+        .json()
+        .await
+        .unwrap();
+
+    games_today
 }
 
 fn teams_with_four_games(week: u64, game_count: &mut HashMap<Team, i32>, front_heavy_teams: &mut HashMap<Team, i32>, back_heavy_teams: &mut HashMap<Team, i32>) {
 
     print_starting_block(week);
+
     for (key, value) in game_count.iter() {
         if *value >= 4 {
-            let mut update_string = "";
+            // let mut update_string = "";
             // max_count.insert(key.clone(), value.clone());
             if front_heavy_teams.get_key_value(key) == Some((&key, &3)) {
-
                 println!("| Team: {} | front heavy schedule |", key.abbreviation);
             } else if back_heavy_teams.get_key_value(key) == Some((&key, &3)) {
                 println!("| Team: {} | back heavy schedule  |", key.abbreviation);
@@ -113,15 +108,6 @@ fn teams_with_four_games(week: u64, game_count: &mut HashMap<Team, i32>, front_h
     println!();
 }
 
-fn print_starting_block(week: u64) {
-    println!(" |--------------------------|");
-    println!(" |--------- WEEK {} ---------|", week);
-    println!(" |--------------------------|");
-    println!();
-    println!("------------------------------------");
-    println!("|   Teams with 4 Games this week   |");
-    println!("------------------------------------");
-}
 
 fn get_overloaded_teams(game_count: &mut HashMap<Team, i32>, loaded_teams: &mut HashMap<Team, i32>, description: &str) {
     let mut index: i32  = 0;
@@ -143,6 +129,20 @@ fn get_overloaded_teams(game_count: &mut HashMap<Team, i32>, loaded_teams: &mut 
     println!();
 }
 
+async fn count_games(game_count: &mut HashMap<Team, i32>, home_team_collection: &Vec<Team>, away_team_collection: &Vec<Team>) -> () {
+    update_load_count(game_count, home_team_collection);
+    update_load_count(game_count, away_team_collection);
+}
+
+fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>) {
+    for team in team_collection {
+        match game_count.get(&team) {
+            Some(count) => { game_count.insert(team.clone(), count + 1); }
+            None => { game_count.insert(team.clone(), 1); }
+        }
+    }
+}
+
 fn format_team_workload_separator(description: &str) {
     match description {
         x if x.contains("front") => println!("---------------------------------------------------------------"),
@@ -159,20 +159,12 @@ fn format_team_workload_separator(description: &str) {
     }
 }
 
-async fn count_games(game_count: &mut HashMap<Team, i32>, home_team_collection: &Vec<Team>, away_team_collection: &Vec<Team>) -> () {
-    let this_clone = game_count.clone();
-    let home_clone = home_team_collection.clone();
-    let away_clone = away_team_collection.clone();
-
-    update_load_count(game_count, &this_clone, home_clone);
-    update_load_count(game_count, &this_clone, away_clone);
-}
-
-fn update_load_count(game_count: &mut HashMap<Team, i32>, this_clone: &HashMap<Team, i32>, home_clone: Vec<Team>) {
-    for team in home_clone {
-        match this_clone.get(&team) {
-            Some(count) => { game_count.insert(team.clone(), count + 1); }
-            None => { game_count.insert(team.clone(), 1); }
-        }
-    }
+fn print_starting_block(week: u64) {
+    println!("|--------------------------|");
+    println!("|--------- WEEK {} ---------|", week);
+    println!("|--------------------------|");
+    println!();
+    println!("------------------------------------");
+    println!("|   Teams with 4 Games this week   |");
+    println!("------------------------------------");
 }
