@@ -16,7 +16,7 @@ mod collision_report;
 async fn main () -> Result<(), Error> {
     for i in 4 ..= 4  {
         let this_week = FantasyWeek::new(i, i);
-        weekly_data_factory::teams_playing_four_or_more(i, &this_week).await;
+        weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
     }
 
     Ok(())
