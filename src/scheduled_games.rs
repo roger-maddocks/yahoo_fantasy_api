@@ -2,17 +2,26 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use crate::team::Team;
 
-#[derive(Debug, Clone, Default, Serialize, serde::Deserialize)]
+#[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {
     pub games: Vec<Game>
 }
 
-#[derive(Debug, Clone, Serialize, serde::Deserialize)]
+#[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Game {
     pub schedule: Schedule,
     pub score: Score,
+}
+
+impl Clone for Game {
+    fn clone(&self) -> Self {
+        Game{
+            schedule: self.schedule.clone(),
+            score: self.score.clone()
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -22,7 +31,12 @@ pub struct Score {
     pub home_score_total: Option<i32>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// impl Clone for Score {
+//     fn clone(&self) -> Self {
+//     }
+// }
+
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Schedule {
     pub away_team: Team,
@@ -30,6 +44,16 @@ pub struct Schedule {
     pub start_time: String,
 }
 
+impl Clone for Schedule {
+    fn clone(&self) -> Self {
+        Schedule {
+            away_team: self.away_team.clone(),
+            home_team: self.home_team.clone(),
+            start_time: self.start_time.clone(),
+
+        }
+    }
+}
 impl IntoIterator for Game {
     type Item = ();
     type IntoIter = GameIntoIterator;

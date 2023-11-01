@@ -22,7 +22,7 @@ use crate::report::Report;
 pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> HashMap<Team, i32>
 {
     //move all into report struct
-    let mut report = Report::new();
+    let mut report = Report::new(vec![], HashMap::new(), vec![], HashMap::new(), HashMap::new(), HashMap::new(), Games{ games: vec![] }, vec![], vec![], 0);
 
     for _ in this_week.start.iter_days().take(7).enumerate() {
 
