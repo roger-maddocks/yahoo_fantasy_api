@@ -6,6 +6,8 @@ YAHOO_CLIENT_SECRET="48d59ea655377f654246ffb8d3bfd659ddaf6728"
 YAHOO_AUTH_ENDPOINT="https://api.login.yahoo.com/oauth2/request_auth"
 YAHOO_TOKEN_URL="https://api.login.yahoo.com/oauth2/get_token"
 YAHOO_AUTH_CODE="antwmh5"
+MSF_GAME_BY_DATE_ENDPOINT="https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date="
+
 #REDIRECT_URI_OOB="oob"
 #REDIRECT_URI_OOB="https://developers.google.com/identity/protocols/oauth2/native-app"
 #https://api.login.yahoo.com/oauth2/request_auth?client_id=dj0yJmk9QWRiRkUyN3dhR08zJmQ9WVdrOU0xbFBjVmd4ZDB3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTg0&redirect_uri=oob&response_type=code&language=en-us

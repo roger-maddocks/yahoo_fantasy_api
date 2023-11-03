@@ -17,6 +17,8 @@ mod weekly_data_factory;
 mod report;
 mod fantasy_week;
 mod collision_report;
+mod yahoo_fantasy;
+
 
 #[tokio::main]
 async fn main () -> Result<(), reqwest::Error> {
