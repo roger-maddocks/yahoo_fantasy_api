@@ -70,6 +70,19 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
     report.teams_playing_four_or_more
 }
 
+pub async fn get_max_remaining_games_report() {
+    //return report of teams with most remaining games from today until end of week
+}
+
+pub async fn get_following_week_early_games_report() {
+    //return report of teams with frontloaded schedule next week
+    //return back loaded schedule if before thursday
+    //return raw game count if thursday or later
+}
+pub async fn get_doubled_up_weekend_report() {
+    //return report of teams with two weekend games
+}
+
 async fn get_games_for_day(date: &NaiveDate) -> Games {
     let daily_url: String = "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
 

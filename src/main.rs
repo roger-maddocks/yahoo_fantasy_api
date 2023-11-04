@@ -1,10 +1,14 @@
-// use anyhow;
-use oauth2::*;
-use reqwest;
+use oauth2::basic::BasicClient;
+use oauth2::reqwest::http_client;
+use oauth2::{
+    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, RedirectUrl, TokenUrl,
+};
+use std::env;
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
 use url::Url;
 
-use serde_json::ser::State;
-// use yahoo_fantasy_api::yahoo_connector;
+use reqwest::Error;
 use crate::fantasy_week::FantasyWeek;
 use crate::team::Team;
 pub mod roster_builder;
@@ -17,15 +21,9 @@ mod weekly_data_factory;
 mod report;
 mod fantasy_week;
 mod collision_report;
-mod yahoo_fantasy;
-
 
 #[tokio::main]
-async fn main () -> Result<(), reqwest::Error> {
-
-
-    let result = reqwest::blocking::get("https://api.spotify.com/v1/search").await;
-
+async fn main () -> Result<(), Error> {
     for i in 4 ..= 4  {
         let this_week = FantasyWeek::new(i, i);
         weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
@@ -33,33 +31,39 @@ async fn main () -> Result<(), reqwest::Error> {
 
     Ok(())
 }
-pub struct ReceivedCode {
-    pub code: AuthorizationCode,
-    pub state: State,
+// Define your Yahoo Fantasy Sports API credentials
+const CLIENT_ID: &str = env!["YAHOO_CLIENT_ID"];
+const CLIENT_SECRET: &str = env!["YAHOO_CLIENT_SECRET"];
+const REDIRECT_URI: &str = "https://www.google.com"; // Your redirect URI
+// const REDIRECT_URI: &str = "http://localhost:8080/callback"; // Your redirect URI
+
+// Initialize an OAuth2 client with your credentials
+pub fn create_yahoo_oauth_client() -> BasicClient {
+    let client_id = ClientId::new(CLIENT_ID.to_string());
+    let client_secret = ClientSecret::new(CLIENT_SECRET.to_string());
+
+    BasicClient::new(
+        client_id,
+        Some(client_secret),
+        AuthUrl::new(Url::parse("https://api.login.yahoo.com/oauth2/request_auth")?),
+        Some(TokenUrl::new(Url::parse("https://api.login.yahoo.com/oauth2/get_token")?)),
+    )
+        .set_redirect_uri(RedirectUrl::new(Url::parse(REDIRECT_URI)?))
 }
 
-//main chunk
-// let builder = YahooExtensionsBuilder::
-// tokio::task::spawn_blocking(|| {
-//     let this_client = local_yahoo_connector();
-// }).await.expect("Thread panicked");
+// Start the OAuth2 authorization flow
+pub fn initiate_oauth_flow() -> String {
+    let (auth_url, csrf_state) = create_yahoo_oauth_client().authorize_url(CsrfToken::new_random);
 
-// #[tokio::main]
-// pub async fn local_yahoo_connector() -> Result<(), Error> {
-//
-//     let client =
-//         BasicClient::new(
-//             ClientId::new(env!["YAHOO_CLIENT_ID"].to_string()),
-//             Some(ClientSecret::new(env!["YAHOO_CLIENT_SECRET"].to_string())),
-//             AuthUrl::new(env!["YAHOO_AUTH_ENDPOINT"].to_string())?,
-//             Some(TokenUrl::new(env!["YAHOO_TOKEN_URL"].to_string())?))
-//         ;
-//     let token_result = client
-//         .exchange_client_credentials()
-//         .add_scope(Scope::new("read".to_string()))
-//         .request(http_client)?;
-//     println!("token result: {:?}", token_result);
-//
-//
-//     Ok(())
-// }
+    auth_url.to_string()
+}
+
+// Handle the OAuth2 callback, exchange the authorization code for a token
+pub fn handle_callback(code: &str) -> Result<oauth2::Token, String> {
+    let token = create_yahoo_oauth_client()
+        .exchange_code(AuthorizationCode::new(code.to_string()))
+        .request(http_client)
+        .map_err(|e| e.to_string())?;
+
+    Ok(token)
+}
