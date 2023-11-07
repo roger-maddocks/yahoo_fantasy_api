@@ -75,7 +75,7 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
 
     let games_today = reqwest::Client::new()
         .get(daily_url + &*date.format("%Y%m%d").to_string())
-        .basic_auth(env!("MY_SPORTS_FEEDS_API_KEY"), Some(env!("MY_SPORTS_FEEDS_PASSWORD")))
+        .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
         .send()
         .await
         .unwrap()
