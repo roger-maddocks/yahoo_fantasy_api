@@ -3,6 +3,7 @@ Implementation of Yahoo api prioritizing Fantasy Hockey
 
 Technical Debt:
 
+>>>>>>>>>TodDo
 Collision Report
   > Weekly
   > Year
@@ -13,3 +14,5 @@ Head-to-Head Player Trends
 What-if Scores
   > Left Roster alone 
   > Absolute optimization
+Same points scored 30 games of heating up is much better than 30 games cooling down. 
+3 years of improving performance at the same point value is better than 3 years of declining performance
