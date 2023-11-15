@@ -1,5 +1,6 @@
 use std::time::Duration;
 use crate::fantasy_week::FantasyWeek;
+use serde_urlencoded;
 use crate::team::Team;
 use oauth2::{AuthorizationCode, CsrfToken, PkceCodeChallenge, AuthType, AuthUrl, ClientId, ClientSecret, HttpRequest, RedirectUrl, Scope, TokenResponse, TokenUrl, ErrorResponse, TokenType, TokenIntrospectionResponse, RevocableToken, DeviceAuthorizationUrl, IntrospectionUrl, RevocationUrl, Client};
 use thiserror::Error;
@@ -18,7 +19,8 @@ use std::ops::Add;
 use base64::encode;
 use oauth2::http::header::AUTHORIZATION;
 use oauth2::http::{HeaderMap, HeaderValue, Response};
-
+use oauth2::RequestTokenError::Request;
+use serde::Serialize;
 
 pub mod roster_builder;
 mod my_sports_feed_profile;
@@ -35,43 +37,33 @@ mod yahoo_auth_profile;
 #[tokio::main]
 async fn main () -> Result<(), Box<dyn Error>> {
 
-    let mut yahoo_headers =
-        my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
-               Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
-               Default::default());
-    yahoo_headers.append("Content-Type", "application/x-www-form-urlencoded".parse().unwrap());
-    // yahoo_headers.append("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36'".to_string().parse().unwrap());
+    let auth = YahooEncode::new();
+    let auth2 = YahooParams::new();
 
-    let mut data = env!["YAHOO_TOKEN_URL"].to_owned() + &"?".to_string();
-    println!("{:#?}", yahoo_headers);
-    let to_encode = encode(data + "client_id=dj0yJmk9QWRiRkUyN3dhR08zJmQ9WVdrOU0xbFBjVmd4ZDB3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTg0&client_secret=48d59ea655377f654246ffb8d3bfd659ddaf6728&redirect_uri=oob&code=feq8t9p&grant_type=authorization_code");
+    let encoded_string = serde_urlencoded::to_string(&auth.params).expect("serializing issue!");
 
-    let mut yahoo_client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .unwrap();
+    println!("{:#?}", encoded_string);
 
-    let response = yahoo_client
-        .post( &to_encode) //+ &to_encode)
-        .headers(yahoo_headers)
-        .body("{}")
+    let client = reqwest::Client::new();
+    let response = client
+        .post(env!("YAHOO_TOKEN_URL"))
+        .form(&auth.params)
+        .headers(auth.headers)
         .send()
+        .await?
+        .text()
         .await
-        .unwrap()
-        ;
+        .unwrap();
 
     println!("{:#?}", response);
+    // let mut yahoo_request = Request::new(reqwest::Method::POST, env!("YAHOO_TOKEN_URL"));
 
-    let this = response.text()
-        .await
-        .unwrap();
-    println!("{:#?}", this);
-
-        // .basic_auth(env!("YAHOO_CLIENT_ID").to_string(), Some(env!("YAHOO_CLIENT_SECRET").to_string()));
-//
-//
-
-
+    //right after first await for testing
+    //     ;
+    //
+    // println!("{:#?}", response);
+    //
+    // println!("{:#?}", response
 
     // for i in 5 ..= 5  {
     //     let this_week = FantasyWeek::new(i, i);
@@ -79,6 +71,42 @@ async fn main () -> Result<(), Box<dyn Error>> {
     // }
 
     Ok(())
+}
+
+#[derive(Default, serde::Serialize, serde::Deserialize)]
+struct YahooParams {
+    client_id: String,
+    client_secret: String,
+    redirect_uri: String,
+    code: String,
+    grant_type: String,
+}
+#[derive(Default)]
+struct YahooEncode {
+    params: YahooParams,
+    headers: HeaderMap,
+}
+impl YahooParams {
+    pub fn new () -> Self  {
+        YahooParams {
+            client_id: env!("YAHOO_CLIENT_ID").to_string(),
+            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
+            grant_type: "authorization_code".to_string(),
+            redirect_uri: "oob".to_string(),//"https://www.google.com".to_string(),
+            code: env!("YAHOO_AUTH_CODE").to_string(),
+        }
+    }
+}
+
+impl YahooEncode {
+    pub fn new() -> Self {
+        YahooEncode {
+            params: YahooParams::new(),
+            headers: my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
+                               Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
+                               Default::default()),
+        }
+    }
 }
 
 fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
@@ -89,16 +117,22 @@ fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap)
     let b64_credential =
         base64::encode(&format!("{}:{}", &urlencoded_id, urlencoded_secret));
 
-    headers.append(
-        AUTHORIZATION,
-        HeaderValue::from_str(&format!("Basic {}", &b64_credential)).unwrap(),
-    );
+    headers.append( "Authorization_Code", HeaderValue::from_str(&format!("Basic {}", &b64_credential)).unwrap(), );
+    headers.append("Content-Type", "application/x-www-form-urlencoded".to_string().parse().unwrap());
 
     headers
 }
 
 
 
+// let mut yahoo_headers =
+// my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
+// Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
+// Default::default());
+// yahoo_headers.append("Content-Type", "application/x-www-form-urlencoded".parse().unwrap());
+//
+// let mut data = env!["YAHOO_TOKEN_URL"].to_owned() + &"?".to_string();
+// println!("{:#?}", yahoo_headers);
 //
 //
 // let client =  BasicClient::new(

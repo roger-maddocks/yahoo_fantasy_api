@@ -15,6 +15,7 @@ reqwest = { version = "0.11.20", features = ["blocking", "json", "serde_json"] }
 serde = { version = "1.0.152", features = ["derive"] }
 serde_with = "3.3.0"
 serde_json = "1.0.105"
+serde_urlencoded = { version = "0.7.1", features = [] }
 chrono = { version = "0.4.31", features= ["serde"] }
 futures = { version="0.3.28", features= ["executor"] }
 thiserror = { version = "1.0.50", features = [] }
