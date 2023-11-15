@@ -15,6 +15,7 @@ use oauth2::url;
 use url::{form_urlencoded, Url};
 use std::error::Error;
 use std::ops::Add;
+use base64::encode;
 use oauth2::http::header::AUTHORIZATION;
 use oauth2::http::{HeaderMap, HeaderValue, Response};
 
@@ -35,35 +36,15 @@ mod yahoo_auth_profile;
 async fn main () -> Result<(), Box<dyn Error>> {
 
     let mut yahoo_headers =
-        encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
+        my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
                Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
                Default::default());
     yahoo_headers.append("Content-Type", "application/x-www-form-urlencoded".parse().unwrap());
     // yahoo_headers.append("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36'".to_string().parse().unwrap());
 
     let mut data = env!["YAHOO_TOKEN_URL"].to_owned() + &"?".to_string();
-    data.push_str("client_id=");
-    data.push_str(env!("YAHOO_CLIENT_ID"));
-    data.push_str("&");
-
-    data.push_str("client_secret=");
-    data.push_str(env!("YAHOO_CLIENT_SECRET"));
-    data.push_str("&");
-
-    data.push_str("redirect_uri=");
-    data.push_str("oob");
-    data.push_str("&");
-
-    data.push_str("code=");
-    data.push_str(env!("YAHOO_AUTH_CODE"));
-    data.push_str("&");
-
-    data.push_str("grant_type=");
-    data.push_str("authorization_code");
-
-    yahoo_headers.append("Content-Length", HeaderValue::from(data.len()));
-
     println!("{:#?}", yahoo_headers);
+    let to_encode = encode(data + "client_id=dj0yJmk9QWRiRkUyN3dhR08zJmQ9WVdrOU0xbFBjVmd4ZDB3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTg0&client_secret=48d59ea655377f654246ffb8d3bfd659ddaf6728&redirect_uri=oob&code=feq8t9p&grant_type=authorization_code");
 
     let mut yahoo_client = reqwest::Client::builder()
         .timeout(Duration::from_secs(30))
@@ -71,8 +52,9 @@ async fn main () -> Result<(), Box<dyn Error>> {
         .unwrap();
 
     let response = yahoo_client
-        .post( &data)
+        .post( &to_encode) //+ &to_encode)
         .headers(yahoo_headers)
+        .body("{}")
         .send()
         .await
         .unwrap()
@@ -99,7 +81,7 @@ async fn main () -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
+fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
     let urlencoded_id: String =
         form_urlencoded::byte_serialize(&client_id.as_bytes()).collect();
     let urlencoded_secret: String =
