@@ -7,31 +7,11 @@ use oauth2;
 use anyhow;
 use AuthType::BasicAuth;
 use oauth2::basic::BasicClient;
+use oauth2::http::{HeaderMap, HeaderValue};
 use oauth2::reqwest::async_http_client;
 use oauth2::url;
-use url::Url;
+use url::{form_urlencoded, Url};
 
-#[derive(Clone, Debug)]
-pub struct Client<TE, TR, TT, TIR, RT, TRE>
-    where
-        TE: ErrorResponse,
-        TR: TokenResponse<TT>,
-        TT: TokenType,
-        TIR: TokenIntrospectionResponse<TT>,
-        RT: RevocableToken,
-        TRE: ErrorResponse,
-{
-    client_id: ClientId,
-    client_secret: Option<ClientSecret>,
-    auth_url: AuthUrl,
-    auth_type: AuthType,
-    token_url: Option<TokenUrl>,
-    redirect_url: Option<RedirectUrl>,
-    introspection_url: Option<IntrospectionUrl>,
-    revocation_url: Option<RevocationUrl>,
-    device_authorization_url: Option<DeviceAuthorizationUrl>,
-    phantom: PhantomData<(TE, TR, TT, TIR, RT, TRE)>,
-}
 #[derive(Error, Debug)]
 pub enum YahooError {
     #[error("fetching the data from yahoo! finance failed")]
@@ -49,114 +29,56 @@ pub enum YahooError {
     #[error("construcing yahoo! finance client failed")]
     BuilderFailed,
 }
-//
-// #[derive(Debug)]
-// pub struct YahooClient {
-//     pub request: HttpRequest
-// }
-// pub struct YahooConnector {
-//     pub client: Client,
-//     pub url: &'static str,
-//     pub search_url: &'static str,
-// }
-//
-// impl YahooConnector {
-//     pub fn new() -> YahooConnector {
-//         let connector = YahooConnector {
-//             client: Client::new(
-//                 ClientId::new(env!("YAHOO_CLIENT_ID").to_string().to_string()),
-//                 Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())),
-//                 AuthUrl::new(env!("YAHOO_TOKEN_URL").to_string()).unwrap(),
-//                 Some(TokenUrl::new(env!("YAHOO_TOKEN_URL").to_string()).unwrap())
-//             ),
-//             url: env!("").to_string().borrow(),
-//             search_url: env!("").to_string().borrow(),
-//         };
-//
-//         connector
-//     }
-// }
-//
-// impl YahooClient {
-//     pub fn new() -> YahooClient {
-//         YahooClient {
-//             request: HttpRequest {
-//                 url: Url::from_str("".to_string()),
-//                 method: Method::POST,
-//                 headers: Default::default(),
-//                 body: vec![],
-//             },
-//         }
-//     }
-// }
-//
-//
-// pub fn authorize(secret: String) => () {
-//
-// let urlencoded_id: String =
-// form_urlencoded::byte_serialize( &client_id.as_bytes()).collect();
-// let urlencoded_secret: String =
-// form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();
-// let b64_credential =
-// base64::encode( & format ! ("{}:{}", & urlencoded_id, urlencoded_secret));
-// headers.append( AUTHORIZATION, HeaderValue::from_str( & format ! ("Basic {}", & b64_credential)).unwrap(),
-// );
-//
-// }
-
-// #[derive(Default)]
-// pub struct YahooConnectorBuilder {
-//     inner: BasicClient,
-// }
-
-// impl YahooConnector {
-//     // pub fn new(
-//     //
-//     // )
-// }
-//
-// impl YahooConnector {
-//     pub fn new() -> YahooConnector {
-//         YahooConnector {
-//             client: Client::default(),
-//             url: env!["YLEAGUE_URL"],
-//             search_url: env!["YSEARCH_URL"],
-//         }
-//     }
-//
-//     pub async fn get_latest_roster( &self) -> Result<YResponse, YahooError> {
-//         self.get_latest_roster().await
-//     }
-//
-// }
-//
-// impl YahooConnectorBuilder {
-//     pub fn build(self) -> Result<YahooConnector, YahooError> {
-//         let builder = Client::builder();
-//
-//         Ok(YahooConnector {
-//             client: builder.build()?,
-//             url: env!["YLEAGUE_URL"],
-//             search_url: env!["YSEARCH_URL"],
-//         })
-//     }
-//
-//     pub fn timeout(mut self, timeout: Duration) -> Self {
-//         self.inner = self.inner.timeout(timeout);
-//
-//         self
-//     }
-// }
-//
-// pub struct YResponse {
-//     roster: Roster
-// }
-//
 
 
+#[derive(Default, serde::Serialize, serde::Deserialize)]
+pub struct YahooParams {
+    client_id: String,
+    client_secret: String,
+    redirect_uri: String,
+    code: String,
+    grant_type: String,
+}
+#[derive(Default)]
+pub struct YahooEncode {
+    pub(crate) params: YahooParams,
+    pub(crate) headers: HeaderMap,
+}
+impl YahooParams {
+    pub fn new () -> Self  {
+        YahooParams {
+            client_id: env!("YAHOO_CLIENT_ID").to_string(),
+            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
+            grant_type: "authorization_code".to_string(),
+            redirect_uri: "oob".to_string(),//"https://www.google.com".to_string(),
+            code: "2y88gm6".to_string(),
+        }
+    }
+}
 
+impl YahooEncode {
+    pub fn new() -> Self {
+        YahooEncode {
+            params: YahooParams::new(),
+            headers: my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
+                               Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
+                               Default::default()),
+        }
+    }
+}
 
+fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
+    let urlencoded_id: String =
+        form_urlencoded::byte_serialize(&client_id.as_bytes()).collect();
+    let urlencoded_secret: String =
+        form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();
+    let b64_credential =
+        base64::encode(&format!("{}:{}", &urlencoded_id, urlencoded_secret));
 
+    headers.append( "Authorization-Code", HeaderValue::from_str(&format!("Basic {}", &b64_credential)).unwrap(), );
+    headers.append("Content-Type", "application/x-www-form-urlencoded".to_string().parse().unwrap());
 
+    headers
+}
 
-
+//"{\"access_token\":\"VucdW_mYuwvxJJW4gFVXzVpc9p0QU6cRozkx1xS.69Wc3dR42GJnMZpN6WvXFRwsUv7bQcPjlxgOYQAyqutICMYLSD3pW6pERzfNCkHtgoItrmuyOZHOjnMCw0jFZxxOZe54Ij6JK4rTAc8Q.WKmwQhhydl5HzEOoBPaQCgZiYnc4PeOgh40CcIG.a6pkLkVXAV2xlR_UqeutUOI81sW_cr9eGbomkJt7eALH1YQZasMmbFUN_QdOAJyTREWzDeSSOjDi921ZV7kRzS.vqePoa1AELksHtY2.qgFT8kaBKJIM9YLfOgMdUoHdR98jM8hW.86uwotvLLIfDs2W_sHDi9Nt9eihYOAgHU946sHENsdHxhz8gFLDWCKwjddh1C9YxrJys1184JTJ1_wQ_.V66J7x2FoRfM_TZW3C8qR55VurrE60RjQVAtFGurJoxZ2U2kakEsVlvDacXWsz5kmiEwy7_lJxhK8DGyhg62riyUMObfpnsjJ8IAcGD8rVq9XPcd5vKl86TYULE1BoYaqjojf6PHRxpkVORBwQIH.71swbMErF5PNiF0jZ08.EI3GLl_xNh7.op6PhLXkqVLEGif.gIH_39l9IDRfYzgO3LgmMGk5tm6_LindeVKTmx0_aNsm_IMNN6GA7rV4FSJCBgy6ChdiliJFk9oSqaQIhwm3.xD_PlDhHkW1cQhZ.ANbKxDt67aSQThNU_ZmlmkXebcmFRnafVqCj44bOWWs_nfrwwcQn9Sy5Zj0UwchovznB8sSaBbrdZZjBrcKt.u5NCrj7vQL9XSp00TUwAr7aGGhRq3W7.Puq5iLkfq41xPN7HfYVbYKbWZC1O82_KnUtarujfWXT4wHW7HVjalwcw73lGhTA8YN01HiFt04XGI3_TEL3dYHi3ilSu6viBZFZC9R6PSaoM3lnAoU1WiB8d8zyH9h.b23ubX5XRBmxdfPOHJhVoGw8PgqWDCf0en1kPGZOQERevhuUilM\",\"refresh_token\":\"ABozVWW1mLQ5sPJ_JjhZkKMu1pHU~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E\",\"expires_in\":3600,\"token_type\":\"bearer\"}"
