@@ -1,14 +1,9 @@
-use std::marker::PhantomData;
 use std::str::FromStr;
-use oauth2::{AuthorizationCode, AuthType, AuthUrl, ClientId, ClientSecret, HttpRequest, RedirectUrl, Scope, TokenResponse, TokenUrl, ErrorResponse, TokenType, TokenIntrospectionResponse, RevocableToken, DeviceAuthorizationUrl, IntrospectionUrl, RevocationUrl, Client};
-// use reqwest::{Client, ClientBuilder, Method};
+use oauth2::{ ClientId, ClientSecret, RevocableToken};
 use thiserror::Error;
 use oauth2;
 use anyhow;
-use AuthType::BasicAuth;
-use oauth2::basic::BasicClient;
 use oauth2::http::{HeaderMap, HeaderValue};
-use oauth2::reqwest::async_http_client;
 use oauth2::url;
 use url::{form_urlencoded, Url};
 
@@ -31,46 +26,54 @@ pub enum YahooError {
 }
 
 
-#[derive(Default, serde::Serialize, serde::Deserialize)]
-pub struct YahooTokenParams {
-    client_id: String,
-    client_secret: String,
-    redirect_uri: String,
-    code: String,
-    grant_type: String,
+pub struct YahooConnection {
+    pub(crate) token_params: YahooTokenRequest,
+    pub(crate) auth_params: YahooAuthRequest,
+    pub(crate) refresh_token_params: YahooRefreshTokenRequest,
+    pub(crate) headers: HeaderMap,
+    pub(crate) token_url: String,
+    pub(crate) auth_url: String,
+    pub(crate) fantasy_sports_url: String,
+    pub(crate) access_token: String
 }
 
+impl YahooConnection {
+    pub fn new() -> Self {
+        YahooConnection {
+            token_params: YahooTokenRequest::new(),
+            auth_params: YahooAuthRequest::new(),
+            refresh_token_params: YahooRefreshTokenRequest::new(),
+            headers: my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
+                               Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
+                               Default::default()),
+            token_url: env!("YAHOO_TOKEN_URL").to_string(),
+            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
+            // refresh_token: env!("YAHOO_FANTASY_REFRESH_TOKEN").to_string(),
+            fantasy_sports_url: env!("YAHOO_V2_URL").to_string(),
+            access_token: "".to_string(),
+        }
+    }
+
+    pub fn get_redirect_url_for_auth_code() {
+
+        let auth = YahooConnection::new();
+        let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
+        let url = auth.auth_url.to_string() + &encoded_string;
+        println!("{:#?}", url);
+    }
+}
+
+///Yahoo data for initial authorization
 #[derive(Default, serde::Serialize, serde::Deserialize)]
-pub struct YahooAuthParams {
+pub struct YahooAuthRequest {
     client_id: String,
     client_secret: String,
     redirect_uri: String,
     response_type: String,
 }
-
-pub struct YahooEncode {
-    pub(crate) token_params: YahooTokenParams,
-    pub(crate) auth_params: YahooAuthParams,
-    pub(crate) headers: HeaderMap,
-    pub(crate) token_url: String,
-    pub(crate) auth_url: String,
-}
-
-impl YahooTokenParams {
-    pub fn new () -> Self  {
-        YahooTokenParams {
-            client_id: env!("YAHOO_CLIENT_ID").to_string(),
-            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
-            grant_type: "authorization_code".to_string(),
-            redirect_uri: "oob".to_string(),//"https://www.google.com".to_string(),
-            code: "w9bgwda".to_string(),
-        }
-    }
-}
-
-impl YahooAuthParams {
+impl YahooAuthRequest {
     pub fn new() -> Self {
-        YahooAuthParams {
+        YahooAuthRequest {
             client_id: env!("YAHOO_CLIENT_ID").to_string(),
             client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
             redirect_uri: "oob".to_string(),
@@ -79,18 +82,56 @@ impl YahooAuthParams {
     }
 }
 
-impl YahooEncode {
-    pub fn new() -> Self {
-        YahooEncode {
-            token_params: YahooTokenParams::new(),
-            auth_params: YahooAuthParams::new(),
-            headers: my_encode(ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
-                               Some(ClientSecret::new( env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
-                               Default::default()),
-            token_url: env!("YAHOO_TOKEN_URL").to_string(),
-            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
+
+///YahooTokenParams to
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+pub struct YahooTokenRequest {
+    client_id: String,
+    client_secret: String,
+    redirect_uri: String,
+    code: String,
+    grant_type: String,
+}
+impl YahooTokenRequest {
+    pub fn new () -> Self  {
+        YahooTokenRequest {
+            client_id: env!("YAHOO_CLIENT_ID").to_string(),
+            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
+            grant_type: "authorization_code".to_string(),
+            redirect_uri: "oob".to_string(),
+            code: env!("YAHOO_AUTH_CODE").to_string(),
         }
     }
+}
+
+///
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+pub struct YahooRefreshTokenRequest {
+    grant_type: String,
+    client_id: String,
+    client_secret: String,
+    redirect_uri: String,
+    refresh_token: String,
+}
+impl YahooRefreshTokenRequest {
+    pub fn new () -> Self  {
+        YahooRefreshTokenRequest {
+            grant_type: "refresh_token".to_string(),
+            client_id: env!("YAHOO_CLIENT_ID").to_string(),
+            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
+            redirect_uri: "oob".to_string(),//"https://www.google.com".to_string(),
+            refresh_token: env!("YAHOO_REFRESH_TOKEN").to_string(),//env!("YAHOO_REFRESH_TOKEN").to_string()//"ABozVWW1mLQ5sPJ_JjhZkKMu1pHU~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E".to_string()//
+        }
+    }
+}
+
+/// Yahoo's response values when requesting token refresh
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+pub struct YahooRefreshTokenResponse {
+    access_token: String,
+    refresh_token: String,
+    expires_in: u64,
+    token_type: String,
 }
 
 fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
@@ -107,13 +148,5 @@ fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap)
     headers
 }
 
-pub fn get_redirect_url_for_auth_code() {
 
-    let auth = YahooEncode::new();
-    let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
-    let url = auth.auth_url.to_string() + &encoded_string;
-    println!("{:#?}", url);
-
-}
-
-//"{\"access_token\":\"VucdW_mYuwvxJJW4gFVXzVpc9p0QU6cRozkx1xS.69Wc3dR42GJnMZpN6WvXFRwsUv7bQcPjlxgOYQAyqutICMYLSD3pW6pERzfNCkHtgoItrmuyOZHOjnMCw0jFZxxOZe54Ij6JK4rTAc8Q.WKmwQhhydl5HzEOoBPaQCgZiYnc4PeOgh40CcIG.a6pkLkVXAV2xlR_UqeutUOI81sW_cr9eGbomkJt7eALH1YQZasMmbFUN_QdOAJyTREWzDeSSOjDi921ZV7kRzS.vqePoa1AELksHtY2.qgFT8kaBKJIM9YLfOgMdUoHdR98jM8hW.86uwotvLLIfDs2W_sHDi9Nt9eihYOAgHU946sHENsdHxhz8gFLDWCKwjddh1C9YxrJys1184JTJ1_wQ_.V66J7x2FoRfM_TZW3C8qR55VurrE60RjQVAtFGurJoxZ2U2kakEsVlvDacXWsz5kmiEwy7_lJxhK8DGyhg62riyUMObfpnsjJ8IAcGD8rVq9XPcd5vKl86TYULE1BoYaqjojf6PHRxpkVORBwQIH.71swbMErF5PNiF0jZ08.EI3GLl_xNh7.op6PhLXkqVLEGif.gIH_39l9IDRfYzgO3LgmMGk5tm6_LindeVKTmx0_aNsm_IMNN6GA7rV4FSJCBgy6ChdiliJFk9oSqaQIhwm3.xD_PlDhHkW1cQhZ.ANbKxDt67aSQThNU_ZmlmkXebcmFRnafVqCj44bOWWs_nfrwwcQn9Sy5Zj0UwchovznB8sSaBbrdZZjBrcKt.u5NCrj7vQL9XSp00TUwAr7aGGhRq3W7.Puq5iLkfq41xPN7HfYVbYKbWZC1O82_KnUtarujfWXT4wHW7HVjalwcw73lGhTA8YN01HiFt04XGI3_TEL3dYHi3ilSu6viBZFZC9R6PSaoM3lnAoU1WiB8d8zyH9h.b23ubX5XRBmxdfPOHJhVoGw8PgqWDCf0en1kPGZOQERevhuUilM\",\"refresh_token\":\"ABozVWW1mLQ5sPJ_JjhZkKMu1pHU~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E\",\"expires_in\":3600,\"token_type\":\"bearer\"}"
+// APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E

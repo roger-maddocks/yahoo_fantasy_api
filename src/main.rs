@@ -32,17 +32,21 @@ mod report;
 mod fantasy_week;
 mod collision_report;
 mod yahoo_auth_profile;
+mod yahoo_fantasy_factory;
 
 #[tokio::main]
 async fn main () -> Result<(), Box<dyn Error>> {
 
-    yahoo_auth_profile::get_redirect_url_for_auth_code();
+    yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
+    let auth = yahoo_auth_profile::YahooConnection::new();
 
-    let auth = yahoo_auth_profile::YahooEncode::new();
+    print!("url: {:?}", auth.token_url);
+    println!("{:?}", auth.token_params);
+
     let client = reqwest::Client::new();
     let response = client
         .post(auth.token_url)
-        .form(&auth.token_params)
+        .form(&auth.refresh_token_params)
         .headers(auth.headers)
         .send()
         .await?
@@ -60,5 +64,3 @@ async fn main () -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-
-// "{\"access_token\":\"c.hHlNOYuwtk23y1tx_M3Kq6HWqT5GvJbgtWLy_cjIn4SXkwcNgF3.9L7XjIsy1m_MJ1PAPsoF_Lt0fe4jtUtDURx.5jFVVnnKjqabVVEK7bZJia8QBySdnWI.xd6ovJAC3FQgNXrFvgyZsQI8Dank9MPJQlt_1TnX9XcCq_BaHzut5VsfwPdHPgYEGghTqbIXr_eh9bQic5RlQtWlA5UtmSTyp9jLRp7kn4dmupX_TGAwU8tl7B3WogGoUL.C_U3u_Ji1ev8vZW97gMil3i3PF4MKoOU0Us_gkBsyhclg8yaXqNr5MG0_81TS9TNxcZfG6GyfmdSLRgz.DQlhdK5oBiFqm_mQmtRm0aCA.lRA6VGvePVzK6XYT50e6Pn_afVfAXU.zQd8j0ig7BYTEVEysRUTTp8MJnO26myiyqTRq0wFY.wHrnH55AVk5vfKmcai3delD2sqfmjj87IRjkvdt1oKqHJzAb0FFiVjCbKY5pvOR.vhhZ2_667aBS_1IXeFiahbUPlGKmLH4_LkRUnKdqJtrjFRy0xvWW1S0Ljs941PfbST8Cwgrt_pBUgSJqEKGFB3H21hQHMQsv4ClQpYD4ZDAXuOQNyJ_Knq3EXxMYr3UWDeZmcUyxssXldplIEKyPMqcncnPAIn9zePSTmvO_mwewbqY1UMcl97OS_JmGwa9JOmmAT8pMk3MXRhNq34YNM54hnpsTV5drsi51LabVrgkUetk4m0VJVHgLb2nZ6trFBSjFb5m_DMCo5OTHQv479A1lLfLiNrEiym_fZc.YypE4Ymg7SmX3ur9XviUCxJszcjlwLcZewDubpgGm2aRizrOkWlhoBChrtIa4NtJw3zAnupPB59AJBQ2LzRhSosKgy3RJL_UI40Pi26k3Kov8vNV0v_JNhfD3aaKKa82qAlov8J7LTUOa5zVVGmqWPhcZR2ADqgAQ_BHFQE22kl8rLxbGqNV8XKPod_w76TlxpIK859ZgyO9V\",\"refresh_token\":\"AN9NVWXQXPxYtB9FB5wWJvhfBhhm~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E\",\"expires_in\":3600,\"token_type\":\"bearer\"}"

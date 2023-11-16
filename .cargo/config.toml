@@ -7,5 +7,7 @@ YAHOO_CLIENT_ID="dj0yJmk9QWRiRkUyN3dhR08zJmQ9WVdrOU0xbFBjVmd4ZDB3bWNHbzlNQT09JnM
 YAHOO_CLIENT_SECRET="48d59ea655377f654246ffb8d3bfd659ddaf6728"
 YAHOO_AUTH_ENDPOINT="https://api.login.yahoo.com/oauth2/request_auth"
 YAHOO_TOKEN_URL="https://api.login.yahoo.com/oauth2/get_token"
-YAHOO_AUTH_CODE="3xgz9m6"
+YAHOO_AUTH_CODE="b2fdt3m"
 YAHOO_FANTASY_TEST="https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games;game_keys=nhl/teams"
+YAHOO_REFRESH_TOKEN="APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E"
+YAHOO_V2_URL="https://fantasysports.yahooapis.com/fantasy/v2"
