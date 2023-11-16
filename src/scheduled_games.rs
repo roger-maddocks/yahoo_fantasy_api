@@ -1,11 +1,11 @@
+use crate::team::Team;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
-use crate::team::Team;
 
 #[derive(Debug, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {
-    pub games: Vec<Game>
+    pub games: Vec<Game>,
 }
 
 #[derive(Debug, Serialize, serde::Deserialize)]
@@ -17,9 +17,9 @@ pub struct Game {
 
 impl Clone for Game {
     fn clone(&self) -> Self {
-        Game{
+        Game {
             schedule: self.schedule.clone(),
-            score: self.score.clone()
+            score: self.score.clone(),
         }
     }
 }
@@ -50,7 +50,6 @@ impl Clone for Schedule {
             away_team: self.away_team.clone(),
             home_team: self.home_team.clone(),
             start_time: self.start_time.clone(),
-
         }
     }
 }
@@ -68,27 +67,21 @@ pub struct GameIntoIterator {
     index: usize,
 }
 
-impl Game {
-}
+impl Game {}
 
 impl Games {
     pub fn new() -> Games {
-        Games {
-            games: vec![]
-        }
+        Games { games: vec![] }
     }
     pub fn get_weekly_games() -> Result<Games, reqwest::Error> {
-
         Ok(Games { games: vec![] })
     }
 
     pub fn get_daily_games(&self, day: NaiveDate) -> Result<Games, reqwest::Error> {
-
-        if day.leap_year() { }
+        if day.leap_year() {}
 
         Ok(Games { games: vec![] })
     }
-
 }
 
 impl Iterator for GameIntoIterator {

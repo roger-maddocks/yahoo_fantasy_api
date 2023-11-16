@@ -1,16 +1,14 @@
 use std::cell::RefCell;
 
-
 #[derive(Debug)]
 pub struct Roster {
-    players: RefCell<Vec<String>>
+    players: RefCell<Vec<String>>,
 }
 
 impl Roster {
-
     pub fn new() -> Roster {
         Roster {
-            players: RefCell::new(vec![])
+            players: RefCell::new(vec![]),
         }
     }
 
@@ -19,8 +17,7 @@ impl Roster {
     }
 
     //based on your players, which weeks/days will you be FORCED to sit one player
-    pub fn get_collision_report(&self) ->  () {
-    }
+    pub fn get_collision_report(&self) -> () {}
 }
 
 //
@@ -33,8 +30,5 @@ impl Roster {
 struct Player {
     first_name: String,
     last_name: String,
-    team: String
+    team: String,
 }
-
-
-

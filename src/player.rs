@@ -5,18 +5,18 @@ pub enum Position {
     LeftWing,
     RightWing,
     Defense,
-    Goalie
+    Goalie,
 }
 pub enum NhlFranchise {
     FloridaPanthers(Team),
     ColoradoAvalanche(Team),
     BuffaloSabers(Team),
 }
-pub struct Player  {
+pub struct Player {
     pub first_name: String,
     pub last_name: String,
     pub position: Vec<Position>,
-    pub prioritize: bool
+    pub prioritize: bool,
 }
 
 impl Player {
@@ -32,14 +32,11 @@ impl Player {
     // pub fn default() -> Self {
     //     Self
     // }
-
 }
-
-
 
 // pub fn collides_with(/*&self,*/ player_in_question: Player, ) -> CollisionReport {
 
-    // collisions: CollisionReport::default();
-    //
-    // collisions
+// collisions: CollisionReport::default();
+//
+// collisions
 // }

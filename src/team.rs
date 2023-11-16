@@ -4,21 +4,19 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct Team {
     pub abbreviation: String,
-    pub full_name: Option<String>
+    pub full_name: Option<String>,
 }
 impl Clone for Team {
     fn clone(&self) -> Self {
-        Team
-        {
+        Team {
             abbreviation: self.abbreviation.clone(),
-            full_name: self.full_name.clone()
+            full_name: self.full_name.clone(),
         }
     }
 }
 
-
 impl PartialEq for Team {
-    fn eq(&self, other:&Team) -> bool {
+    fn eq(&self, other: &Team) -> bool {
         self.abbreviation == other.abbreviation
     }
 }

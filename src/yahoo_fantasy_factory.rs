@@ -1,13 +1,13 @@
+use crate::yahoo_auth_profile::YahooConnection;
 use std::fmt;
 use std::fmt::Formatter;
-use crate::yahoo_auth_profile::YahooConnection;
 
 #[derive(Debug)]
 enum League {
     NHL,
     NBA,
     MLB,
-    NFL
+    NFL,
 }
 impl fmt::Display for League {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -15,20 +15,17 @@ impl fmt::Display for League {
     }
 }
 pub struct YahooFantasyFactory {
-    yahoo_client: YahooConnection,
-    league: League
+    pub yahoo_client: YahooConnection,
+    league: League,
 }
 
 impl YahooFantasyFactory {
-    pub fn new_nhl_factory () -> Self {
-        YahooFantasyFactory{
+    pub fn new_nhl_factory() -> Self {
+        YahooFantasyFactory {
             yahoo_client: YahooConnection::new(),
-            league: League::NHL
+            league: League::NHL,
         }
     }
 
-    pub fn get_league_resource() {
-
-    }
-
+    pub fn get_league_resource() {}
 }

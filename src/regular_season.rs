@@ -51,17 +51,6 @@
 //     index: u64
 // }
 
-
-
-
-
-
-
-
-
-
-
-
 // impl<'a> IntoIterator for &'a FantasyWeek {
 //     type Item = NaiveDate;
 //     type IntoIter = FantasyWeekIterator<'a>;

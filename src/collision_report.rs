@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use chrono::NaiveDate;
 use crate::player::Player;
+use chrono::NaiveDate;
+use std::collections::HashMap;
 enum RegularSeason {
     StartDate(NaiveDate),
     EndDate(NaiveDate),
@@ -14,20 +14,29 @@ pub struct CollisionReport {
     start_week: NaiveDate,
     end_week: NaiveDate,
     season_collisions: i8,
-    weekly_collisions: HashMap<i8, i8> //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
+    weekly_collisions: HashMap<i8, i8>, //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
 }
 
 /// Requirements for new collision report
 /// Player A : Player B :
 ///
 impl CollisionReport {
-    pub fn new(player_ayy: Option<Player>,
-               player_bee: Option<Player>,
-               start_week: NaiveDate,
-               end_week: NaiveDate,
-               season_collisions: i8,
-               weekly_collisions: HashMap<i8, i8>) -> Self {
-        Self { player_ayy, player_bee, start_week, end_week, season_collisions, weekly_collisions }
+    pub fn new(
+        player_ayy: Option<Player>,
+        player_bee: Option<Player>,
+        start_week: NaiveDate,
+        end_week: NaiveDate,
+        season_collisions: i8,
+        weekly_collisions: HashMap<i8, i8>,
+    ) -> Self {
+        Self {
+            player_ayy,
+            player_bee,
+            start_week,
+            end_week,
+            season_collisions,
+            weekly_collisions,
+        }
     }
     pub fn default() -> Self {
         Self {
@@ -40,7 +49,3 @@ impl CollisionReport {
         }
     }
 }
-
-
-
-
