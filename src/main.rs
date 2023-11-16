@@ -36,25 +36,16 @@ mod yahoo_fantasy_factory;
 
 #[tokio::main]
 async fn main () -> Result<(), Box<dyn Error>> {
+    // yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
 
-    yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
-    let auth = yahoo_auth_profile::YahooConnection::new();
+    let fantasy_connection = yahoo_auth_profile::YahooConnection::new();
 
-    print!("url: {:?}", auth.token_url);
-    println!("{:?}", auth.token_params);
-
-    let client = reqwest::Client::new();
-    let response = client
-        .post(auth.token_url)
-        .form(&auth.refresh_token_params)
-        .headers(auth.headers)
-        .send()
-        .await?
-        .text()
+    let result = fantasy_connection
+        .get_access_token()
         .await
-        .unwrap();
+        .expect("Main access token error!");
 
-    println!("{:#?}", response);
+    println!("{:#?}", result);
 
     // for i in 5 ..= 5  {
     //     let this_week = FantasyWeek::new(i, i);

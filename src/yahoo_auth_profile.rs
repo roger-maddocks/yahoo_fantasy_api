@@ -3,27 +3,11 @@ use oauth2::{ ClientId, ClientSecret, RevocableToken};
 use thiserror::Error;
 use oauth2;
 use anyhow;
+use anyhow::Error;
 use oauth2::http::{HeaderMap, HeaderValue};
 use oauth2::url;
 use url::{form_urlencoded, Url};
 
-#[derive(Error, Debug)]
-pub enum YahooError {
-    #[error("fetching the data from yahoo! finance failed")]
-    FetchFailed(String),
-    #[error("deserializing response from yahoo! finance failed")]
-    DeserializeFailed(#[from] serde_json::Error),
-    #[error("connection to yahoo! finance server failed")]
-    ConnectionFailed(#[from] reqwest::Error),
-    #[error("yahoo! finance return invalid JSON format")]
-    InvalidJson,
-    #[error("yahoo! finance returned an empty data set")]
-    EmptyDataSet,
-    #[error("yahoo! finance returned inconsistent data")]
-    DataInconsistency,
-    #[error("construcing yahoo! finance client failed")]
-    BuilderFailed,
-}
 
 
 pub struct YahooConnection {
@@ -60,6 +44,22 @@ impl YahooConnection {
         let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
         let url = auth.auth_url.to_string() + &encoded_string;
         println!("{:#?}", url);
+    }
+    pub async fn get_access_token(&self) -> Option<String> {
+
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&self.token_url)
+            .form(&self.refresh_token_params)
+            .headers(self.headers.clone())
+            .send()
+            .await
+            .expect("Get token error!")
+            .text()
+            .await
+            .unwrap();
+
+        Some(response)
     }
 }
 
@@ -127,6 +127,7 @@ impl YahooRefreshTokenRequest {
 
 /// Yahoo's response values when requesting token refresh
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct YahooRefreshTokenResponse {
     access_token: String,
     refresh_token: String,
@@ -148,5 +149,22 @@ fn my_encode (client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap)
     headers
 }
 
+#[derive(Error, Debug)]
+pub enum YahooError {
+    #[error("fetching the data from yahoo! finance failed")]
+    FetchFailed(String),
+    #[error("deserializing response from yahoo! finance failed")]
+    DeserializeFailed(#[from] serde_json::Error),
+    #[error("connection to yahoo! finance server failed")]
+    ConnectionFailed(#[from] reqwest::Error),
+    #[error("yahoo! finance return invalid JSON format")]
+    InvalidJson,
+    #[error("yahoo! finance returned an empty data set")]
+    EmptyDataSet,
+    #[error("yahoo! finance returned inconsistent data")]
+    DataInconsistency,
+    #[error("construcing yahoo! finance client failed")]
+    BuilderFailed,
+}
 
 // APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E
