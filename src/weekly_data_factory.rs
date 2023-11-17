@@ -127,7 +127,7 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
         "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
 
     let games_today = reqwest::Client::new()
-        .get(daily_url + &*date.format("%Y%m%d").to_string())
+        .get(daily_url + &date.format("%Y%m%d").to_string())
         .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
         .send()
         .await

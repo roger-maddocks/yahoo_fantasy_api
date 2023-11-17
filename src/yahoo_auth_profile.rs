@@ -33,7 +33,7 @@ impl YahooConnection {
             token_url: env!("YAHOO_TOKEN_URL").to_string(),
             auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
             // refresh_token: env!("YAHOO_FANTASY_REFRESH_TOKEN").to_string(),
-            fantasy_sports_url: env!("YAHOO_V2_URL").to_string(),
+            fantasy_sports_url: env!("YAHOO_V2_URL").to_string() + "/",
             access_token: "".to_string(),
         }
     }
@@ -45,6 +45,7 @@ impl YahooConnection {
         let url = auth.auth_url.to_string() + &encoded_string;
         println!("{:#?}", url);
     }
+
     pub async fn get_access_token(&self) -> Option<String> {
         let client = reqwest::Client::new();
         let response = client

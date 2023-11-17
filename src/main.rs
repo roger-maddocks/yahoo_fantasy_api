@@ -30,17 +30,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let fantasy_factory = YahooFantasyFactory::new_nhl_factory();
 
 
-    let result = fantasy_factory.yahoo_client
+    let result = fantasy_factory
+        .yahoo_client
         .get_access_token()
         .await
-        .expect("Main access token error!");
+        .expect("Error getting access_token!");
 
     println!("{:#?}", result);
 
-    // for i in 5 ..= 5  {
-    //     let this_week = FantasyWeek::new(i, i);
-    //     weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
-    // }
+    fantasy_factory.get_league_resource().await;
+    // let game_form = fantasy_factory
+        // .get_league_resource()
+        // .await
+        // .expect("Error asking Yahoo!");
+
+
+    for i in 7 ..= 7  {
+        let this_week = FantasyWeek::new(i, i);
+        weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
+    }
 
     Ok(())
 }
