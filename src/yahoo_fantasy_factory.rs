@@ -1,7 +1,9 @@
 use crate::yahoo_auth_profile::YahooConnection;
 use std::fmt;
 use std::fmt::Formatter;
+use oauth2::ErrorResponse;
 use reqwest::Error;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 enum League {
@@ -15,6 +17,7 @@ impl fmt::Display for League {
         write!(f, "{:?}", self)
     }
 }
+#[derive(Default, Serialize, Deserialize)]
 pub struct YahooFantasyFactory {
     pub yahoo_client: YahooConnection,
     league: League,
@@ -28,17 +31,29 @@ impl YahooFantasyFactory {
         }
     }
 
-    pub async fn get_league_resource(&self) -> Result<(), Error> {
-
+    pub async fn get_league_resource(&self) -> Result<YahooFantasyFactory, dyn ErrorResponse> {
         let url = self.yahoo_client.fantasy_sports_url.clone() + &self.league.to_string().to_lowercase();
-        let response = reqwest::get(url.to_string())
-            .await?;
-        println!("{:?}", response.status());
-        println!("{:?}", response.headers());
 
-        let body = response.text().await?;
-        println!("{:?}", body);
+        println!("get_league_resource url: {:?}", url);
 
-        Ok(())
+        let client = reqwest::Client::new();
+        let response = client
+            .post(&self.yahoo_client.fantasy_sports_url)
+            .form(&self.yahoo_client.refresh_token_params)
+            .headers(self.yahoo_client.headers.clone())
+            .send()
+            .await
+            .expect("Get token error!")
+            .json()
+            .await
+            .unwrap();
+
+        // Some(response)
+        response
+
+        // let body = response.text().await?;
+        // println!("{:?}", body);
+        //
+        // Ok(())
     }
 }

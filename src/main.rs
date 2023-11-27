@@ -29,7 +29,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let fantasy_factory = YahooFantasyFactory::new_nhl_factory();
 
-
     let result = fantasy_factory
         .yahoo_client
         .get_access_token()
@@ -38,7 +37,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{:#?}", result);
 
-    fantasy_factory.get_league_resource().await;
+    fantasy_factory
+        .get_league_resource()
+        .await;
     // let game_form = fantasy_factory
         // .get_league_resource()
         // .await

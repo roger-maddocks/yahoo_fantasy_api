@@ -9,14 +9,15 @@ use thiserror::Error;
 use url::{form_urlencoded, Url};
 
 pub struct YahooConnection {
-    pub(crate) token_params: YahooTokenRequest,
     pub(crate) auth_params: YahooAuthRequest,
+    pub(crate) token_params: YahooTokenRequest,
     pub(crate) refresh_token_params: YahooRefreshTokenRequest,
+    pub(crate) bearer_credentials: YahooRefreshTokenResponse,
     pub(crate) headers: HeaderMap,
     pub(crate) token_url: String,
     pub(crate) auth_url: String,
     pub(crate) fantasy_sports_url: String,
-    pub(crate) access_token: String,
+    // pub(crate) access_token: String,
 }
 
 impl YahooConnection {
@@ -25,16 +26,17 @@ impl YahooConnection {
             token_params: YahooTokenRequest::new(),
             auth_params: YahooAuthRequest::new(),
             refresh_token_params: YahooRefreshTokenRequest::new(),
+            bearer_credentials: Default::default(),
             headers: my_encode(
                 ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
                 Some(ClientSecret::new(env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
                 Default::default(),
             ),
             token_url: env!("YAHOO_TOKEN_URL").to_string(),
-            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
+            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string(),
+            fantasy_sports_url: env!("YAHOO_V2_URL").to_string(),
             // refresh_token: env!("YAHOO_FANTASY_REFRESH_TOKEN").to_string(),
-            fantasy_sports_url: env!("YAHOO_V2_URL").to_string() + "/",
-            access_token: "".to_string(),
+            // access_token: "".to_string(),
         }
     }
 
@@ -46,20 +48,20 @@ impl YahooConnection {
         println!("{:#?}", url);
     }
 
-    pub async fn get_access_token(&self) -> Option<String> {
+    pub async fn get_access_token(&self) {
         let client = reqwest::Client::new();
-        let response = client
-            .post(&self.token_url)
-            .form(&self.refresh_token_params)
+
+        let response:YahooRefreshTokenResponse = client
+            .post(&self.fantasy_sports_url)
+            .form(&self.bearer_credentials)
             .headers(self.headers.clone())
             .send()
             .await
             .expect("Get token error!")
-            .text()
+            .json()
             .await
             .unwrap();
 
-        Some(response)
     }
 }
 
