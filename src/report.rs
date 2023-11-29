@@ -61,7 +61,7 @@ impl Report {
             games_today: Games { games: vec![] },
             home_teams: vec![],
             away_teams: vec![],
-            index: 0
+            index: 0,
         }
     }
 }

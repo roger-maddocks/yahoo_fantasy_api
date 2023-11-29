@@ -1,7 +1,7 @@
 use crate::yahoo_auth_profile::YahooConnection;
+use reqwest::Error;
 use std::fmt;
 use std::fmt::Formatter;
-use reqwest::Error;
 
 #[derive(Debug)]
 pub enum League {
@@ -29,10 +29,9 @@ impl YahooFantasyFactory {
     }
 
     pub async fn get_league_resource(&self) -> Result<(), Error> {
-
-        let url = self.yahoo_client.fantasy_sports_url.clone() + &self.league.to_string().to_lowercase();
-        let response = reqwest::get(url.to_string())
-            .await?;
+        let url =
+            self.yahoo_client.fantasy_sports_url.clone() + &self.league.to_string().to_lowercase();
+        let response = reqwest::get(url.to_string()).await?;
         println!("{:?}", response.status());
         println!("{:?}", response.headers());
 

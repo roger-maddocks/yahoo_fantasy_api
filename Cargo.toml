@@ -25,3 +25,17 @@ url = "2.4.1"
 base64 = "0.21.5"
 urlencoding = "2.1.3"
 
+
+[env]
+MSF_PASSWORD="MYSPORTSFEEDS"
+MSF_API_KEY="163db9fd-bdbe-4bd4-a4b8-15324f"
+MSF_GAMES_URL="https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date="
+MSF_GAME_BY_DATE_ENDPOINT="https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date="
+YAHOO_CLIENT_ID="dj0yJmk9QWRiRkUyN3dhR08zJmQ9WVdrOU0xbFBjVmd4ZDB3bWNHbzlNQT09JnM9Y29uc3VtZXJzZWNyZXQmc3Y9MCZ4PTg0"
+YAHOO_CLIENT_SECRET="48d59ea655377f654246ffb8d3bfd659ddaf6728"
+YAHOO_AUTH_ENDPOINT="https://api.login.yahoo.com/oauth2/request_auth"
+YAHOO_TOKEN_URL="https://api.login.yahoo.com/oauth2/get_token"
+YAHOO_AUTH_CODE="b2fdt3m"
+YAHOO_FANTASY_TEST="https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games;game_keys=nhl/teams"
+YAHOO_REFRESH_TOKEN="APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E"
+YAHOO_V2_URL="https://fantasysports.yahooapis.com/fantasy/v2"

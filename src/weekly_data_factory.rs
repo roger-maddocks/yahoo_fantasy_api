@@ -23,7 +23,6 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
     let mut report = Report::default();
 
     for days in this_week.start.iter_days().take(7).enumerate() {
-
         report.games_today = get_games_for_day(&days.1).await;
 
         report.home_teams = report
@@ -40,8 +39,12 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
             .map(|each_game| each_game.schedule.away_team.to_owned())
             .collect();
 
-        register_games( &mut report.game_count, &report.home_teams.to_owned(), &report.away_teams.to_owned()
-        ).await;
+        register_games(
+            &mut report.game_count,
+            &report.home_teams.to_owned(),
+            &report.away_teams.to_owned(),
+        )
+        .await;
 
         match report.index {
             x if x < 3 => {
@@ -49,26 +52,30 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
                     &mut report.front_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                ).await
+                )
+                .await
             }
             x if x == 3 => {
                 register_games(
                     &mut report.front_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                ).await;
+                )
+                .await;
                 register_games(
                     &mut report.back_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                ).await;
+                )
+                .await;
             }
             x if x > 3 => {
                 register_games(
                     &mut report.back_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                ).await
+                )
+                .await
             }
             _ => panic!("Error while trying to determine front/back heavy schedules"),
         }
@@ -76,12 +83,14 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
         report.index += 1
     }
 
-    teams_with_four_games(week,
+    teams_with_four_games(
+        week,
         &mut report.game_count,
         &mut report.front_heavy_teams,
         &mut report.back_heavy_teams,
     );
-    get_overloaded_teams(&mut report.game_count,
+    get_overloaded_teams(
+        &mut report.game_count,
         &mut report.front_heavy_teams,
         "front loaded",
     );
@@ -99,7 +108,6 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
 
 async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report) {
     for days in this_week.start.iter_days().take(7).enumerate() {
-
         report.games_today = get_games_for_day(&days.1).await;
 
         report.home_teams = report
@@ -120,9 +128,9 @@ async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report
             &mut report.game_count,
             &report.home_teams.to_owned(),
             &report.away_teams.to_owned(),
-        ).await
+        )
+        .await
     }
-
 }
 
 async fn get_games_for_day(date: &NaiveDate) -> Games {
@@ -171,7 +179,8 @@ fn teams_with_four_games(
 fn get_overloaded_teams(
     game_count: &mut HashMap<Team, i32>,
     loaded_teams: &mut HashMap<Team, i32>,
-    description: &str ) {
+    description: &str,
+) {
     let mut index: i32 = 0;
 
     format_team_workload_separator(description);
@@ -193,7 +202,11 @@ fn get_overloaded_teams(
     println!();
 }
 
-async fn register_games(game_count: &mut HashMap<Team, i32>, home_teams: &Vec<Team>, away_teams: &Vec<Team>) -> () {
+async fn register_games(
+    game_count: &mut HashMap<Team, i32>,
+    home_teams: &Vec<Team>,
+    away_teams: &Vec<Team>,
+) -> () {
     update_load_count(game_count, home_teams);
     update_load_count(game_count, away_teams);
 }

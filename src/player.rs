@@ -18,7 +18,7 @@ pub struct Player {
     pub last_name: String,
     pub position: Vec<Position>,
     pub prioritize: bool,
-    pub team: NhlFranchise
+    pub team: NhlFranchise,
 }
 
 impl Player {
@@ -28,7 +28,10 @@ impl Player {
             last_name: "".to_string(),
             position: vec![],
             prioritize: false,
-            team: ColoradoAvalanche(Team { abbreviation: "COL".to_string(), full_name: None }),
+            team: ColoradoAvalanche(Team {
+                abbreviation: "COL".to_string(),
+                full_name: None,
+            }),
         }
     }
 
