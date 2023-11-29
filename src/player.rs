@@ -1,3 +1,4 @@
+use crate::player::NhlFranchise::ColoradoAvalanche;
 use crate::Team;
 
 pub enum Position {
@@ -8,8 +9,8 @@ pub enum Position {
     Goalie,
 }
 pub enum NhlFranchise {
-    FloridaPanthers(Team),
     ColoradoAvalanche(Team),
+    FloridaPanthers(Team),
     BuffaloSabers(Team),
 }
 pub struct Player {
@@ -17,6 +18,7 @@ pub struct Player {
     pub last_name: String,
     pub position: Vec<Position>,
     pub prioritize: bool,
+    pub team: NhlFranchise
 }
 
 impl Player {
@@ -26,6 +28,7 @@ impl Player {
             last_name: "".to_string(),
             position: vec![],
             prioritize: false,
+            team: ColoradoAvalanche(Team { abbreviation: "COL".to_string(), full_name: None }),
         }
     }
 

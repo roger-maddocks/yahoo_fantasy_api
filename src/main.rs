@@ -8,7 +8,8 @@ use serde::Serialize;
 use std::error::Error;
 use std::ops::Add;
 use crate::fantasy_week::FantasyWeek;
-use crate::yahoo_fantasy_factory::YahooFantasyFactory;
+use crate::player::NhlFranchise;
+use crate::yahoo_fantasy_factory::{League, YahooFantasyFactory};
 
 mod collision_report;
 mod fantasy_week;
@@ -25,16 +26,23 @@ mod yahoo_fantasy_factory;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+
     yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
 
-    let fantasy_factory = YahooFantasyFactory::new_nhl_factory();
-
+    let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
 
     let result = fantasy_factory
         .yahoo_client
         .get_access_token()
         .await
         .expect("Main access token error!");
+    // let result = fantasy_factory
+    //     .yahoo_client
+    //     .get_access_token()
+    //     .await
+    //     .expect("Error getting access_token!");
+    //
+    // println!("{:#?}", result);
 
     println!("{:#?}", result);
 
@@ -42,15 +50,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let this_week = FantasyWeek::new(i, i);
         weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
     }
-    fantasy_factory.get_league_resource().await;
+
+    // fantasy_factory.get_league_resource().await;
     // let game_form = fantasy_factory
         // .get_league_resource()
         // .await
         // .expect("Error asking Yahoo!");
 
 
-    for i in 7 ..= 7  {
+    for i in 8 ..= 8  {
         let this_week = FantasyWeek::new(i, i);
+
         weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
     }
 

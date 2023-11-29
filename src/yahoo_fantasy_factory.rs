@@ -4,11 +4,11 @@ use std::fmt::Formatter;
 use reqwest::Error;
 
 #[derive(Debug)]
-enum League {
-    NHL,
-    NBA,
-    MLB,
-    NFL,
+pub enum League {
+    Nhl,
+    Nba,
+    Mlb,
+    Nfl,
 }
 impl fmt::Display for League {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
@@ -21,10 +21,10 @@ pub struct YahooFantasyFactory {
 }
 
 impl YahooFantasyFactory {
-    pub fn new_nhl_factory() -> Self {
+    pub fn new_factory(league: League) -> Self {
         YahooFantasyFactory {
             yahoo_client: YahooConnection::new(),
-            league: League::NHL,
+            league,
         }
     }
 
