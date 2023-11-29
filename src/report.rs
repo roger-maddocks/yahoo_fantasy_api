@@ -49,4 +49,19 @@ impl Report {
             index,
         }
     }
+
+    pub fn default() -> Self {
+        Report {
+            fantasy_weeks: vec![],
+            teams_playing_four_or_more: Default::default(),
+            top_free_agents: vec![],
+            game_count: Default::default(),
+            front_heavy_teams: Default::default(),
+            back_heavy_teams: Default::default(),
+            games_today: Games { games: vec![] },
+            home_teams: vec![],
+            away_teams: vec![],
+            index: 0
+        }
+    }
 }

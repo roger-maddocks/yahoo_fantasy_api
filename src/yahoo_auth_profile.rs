@@ -25,7 +25,7 @@ impl YahooConnection {
             token_params: YahooTokenRequest::new(),
             auth_params: YahooAuthRequest::new(),
             refresh_token_params: YahooRefreshTokenRequest::new(),
-            headers: my_encode(
+            headers: generate_headers(
                 ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
                 Some(ClientSecret::new(env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
                 Default::default(),
@@ -134,7 +134,7 @@ pub struct YahooRefreshTokenResponse {
     token_type: String,
 }
 
-fn my_encode(client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
+fn generate_headers(client_id: ClientId, secret: ClientSecret, mut headers: HeaderMap) -> HeaderMap {
     let urlencoded_id: String = form_urlencoded::byte_serialize(&client_id.as_bytes()).collect();
     let urlencoded_secret: String =
         form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();

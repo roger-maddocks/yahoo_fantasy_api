@@ -34,10 +34,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .yahoo_client
         .get_access_token()
         .await
-        .expect("Error getting access_token!");
+        .expect("Main access token error!");
 
     println!("{:#?}", result);
 
+    for i in 8 ..= 8  {
+        let this_week = FantasyWeek::new(i, i);
+        weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
+    }
     fantasy_factory.get_league_resource().await;
     // let game_form = fantasy_factory
         // .get_league_resource()
