@@ -37,10 +37,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{:#?}", result);
 
-    // for i in 5 ..= 5  {
-    //     let this_week = FantasyWeek::new(i, i);
-    //     weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
-    // }
+    for i in 8 ..= 8  {
+        let this_week = FantasyWeek::new(i, i);
+        weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
+    }
 
     Ok(())
 }

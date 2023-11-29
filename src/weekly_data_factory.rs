@@ -20,93 +20,68 @@ use std::collections::HashMap;
 /// WEEK 26 Final week of season
 /// ```
 pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> HashMap<Team, i32> {
-    //move all into report struct
-    let mut report = Report::new(
-        vec![],
-        HashMap::new(),
-        vec![],
-        HashMap::new(),
-        HashMap::new(),
-        HashMap::new(),
-        Games { games: vec![] },
-        vec![],
-        vec![],
-        0,
-    );
+    let mut report = Report::default();
 
-    for _ in this_week.start.iter_days().take(7).enumerate() {
-        let day = this_week.start + Duration::days(report.index);
-        // println!("{}",day);
-        report.games_today = get_games_for_day(&day).await;
+    for days in this_week.start.iter_days().take(7).enumerate() {
+
+        report.games_today = get_games_for_day(&days.1).await;
 
         report.home_teams = report
             .games_today
             .games
             .iter()
-            .map(|this_game| this_game.schedule.home_team.clone())
+            .map(|each_game| each_game.schedule.home_team.to_owned())
             .collect();
 
         report.away_teams = report
             .games_today
             .games
             .iter()
-            .map(|this_game| this_game.schedule.away_team.clone())
+            .map(|each_game| each_game.schedule.away_team.to_owned())
             .collect();
 
-        count_games(
-            &mut report.game_count,
-            &report.home_teams.clone(),
-            &report.away_teams.clone(),
-        )
-        .await;
-        // count_games(&mut game_count, &away_teams).await;
+        register_games( &mut report.game_count, &report.home_teams.to_owned(), &report.away_teams.to_owned()
+        ).await;
 
         match report.index {
             x if x < 3 => {
-                count_games(
+                register_games(
                     &mut report.front_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                )
-                .await
+                ).await
             }
             x if x == 3 => {
-                count_games(
+                register_games(
                     &mut report.front_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                )
-                .await;
-                count_games(
+                ).await;
+                register_games(
                     &mut report.back_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                )
-                .await;
+                ).await;
             }
             x if x > 3 => {
-                count_games(
+                register_games(
                     &mut report.back_heavy_teams,
                     &report.home_teams,
                     &report.away_teams,
-                )
-                .await
+                ).await
             }
-            _ => panic!("Error trying to get front/back heavy schedules"),
+            _ => panic!("Error while trying to determine front/back heavy schedules"),
         }
 
-        // println!("Processing day {:?}.", index+1);
         report.index += 1
     }
 
-    teams_with_four_games(
-        week,
+    teams_with_four_games(week,
         &mut report.game_count,
         &mut report.front_heavy_teams,
         &mut report.back_heavy_teams,
     );
-    get_overloaded_teams(
-        &mut report.game_count,
+    get_overloaded_teams(&mut report.game_count,
         &mut report.front_heavy_teams,
         "front loaded",
     );
@@ -120,6 +95,34 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
     println!();
     println!();
     report.teams_playing_four_or_more
+}
+
+async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report) {
+    for days in this_week.start.iter_days().take(7).enumerate() {
+
+        report.games_today = get_games_for_day(&days.1).await;
+
+        report.home_teams = report
+            .games_today
+            .games
+            .iter()
+            .map(|this_game| this_game.schedule.home_team.to_owned())
+            .collect();
+
+        report.away_teams = report
+            .games_today
+            .games
+            .iter()
+            .map(|this_game| this_game.schedule.away_team.to_owned())
+            .collect();
+
+        register_games(
+            &mut report.game_count,
+            &report.home_teams.to_owned(),
+            &report.away_teams.to_owned(),
+        ).await
+    }
+
 }
 
 async fn get_games_for_day(date: &NaiveDate) -> Games {
@@ -168,8 +171,7 @@ fn teams_with_four_games(
 fn get_overloaded_teams(
     game_count: &mut HashMap<Team, i32>,
     loaded_teams: &mut HashMap<Team, i32>,
-    description: &str,
-) {
+    description: &str ) {
     let mut index: i32 = 0;
 
     format_team_workload_separator(description);
@@ -191,13 +193,9 @@ fn get_overloaded_teams(
     println!();
 }
 
-async fn count_games(
-    game_count: &mut HashMap<Team, i32>,
-    home_team_collection: &Vec<Team>,
-    away_team_collection: &Vec<Team>,
-) -> () {
-    update_load_count(game_count, home_team_collection);
-    update_load_count(game_count, away_team_collection);
+async fn register_games(game_count: &mut HashMap<Team, i32>, home_teams: &Vec<Team>, away_teams: &Vec<Team>) -> () {
+    update_load_count(game_count, home_teams);
+    update_load_count(game_count, away_teams);
 }
 
 fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<Team>) {
