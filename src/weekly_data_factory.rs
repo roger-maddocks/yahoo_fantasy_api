@@ -23,17 +23,23 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
     let mut report = Report::default();
 
     for days in this_week.start.iter_days().take(7).enumerate() {
-        report.games_today = get_games_for_day(&days.1).await;
+        report.daily_games.push(get_games_for_day(&days.1).await);
 
         report.home_teams = report
-            .games_today
+            .daily_games
+            .iter()
+            .nth(report.index as usize)
+            .unwrap()
             .games
             .iter()
             .map(|each_game| each_game.schedule.home_team.to_owned())
             .collect();
 
         report.away_teams = report
-            .games_today
+            .daily_games
+            .iter()
+            .nth(report.index as usize)
+            .unwrap()
             .games
             .iter()
             .map(|each_game| each_game.schedule.away_team.to_owned())
@@ -106,32 +112,32 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
     report.teams_playing_four_or_more
 }
 
-async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report) {
-    for days in this_week.start.iter_days().take(7).enumerate() {
-        report.games_today = get_games_for_day(&days.1).await;
-
-        report.home_teams = report
-            .games_today
-            .games
-            .iter()
-            .map(|this_game| this_game.schedule.home_team.to_owned())
-            .collect();
-
-        report.away_teams = report
-            .games_today
-            .games
-            .iter()
-            .map(|this_game| this_game.schedule.away_team.to_owned())
-            .collect();
-
-        register_games(
-            &mut report.game_count,
-            &report.home_teams.to_owned(),
-            &report.away_teams.to_owned(),
-        )
-        .await
-    }
-}
+// async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report, weekday_index: i64) {
+//     for days in this_week.start.iter_days().take(7).enumerate() {
+//         report.daily_games.push(get_games_for_day(&days.1).await);
+//
+//         report.home_teams = report
+//             .daily_games
+//             .games(weekday_index)
+//             .iter()
+//             .map(|this_game| this_game.schedule.home_team.to_owned())
+//             .collect();
+//
+//         report.away_teams = report
+//             .daily_games
+//             .games(weekday_index)
+//             .iter()
+//             .map(|this_game| this_game.schedule.away_team.to_owned())
+//             .collect();
+//
+//         register_games(
+//             &mut report.game_count,
+//             &report.home_teams.to_owned(),
+//             &report.away_teams.to_owned(),
+//         )
+//         .await
+//     }
+// }
 
 async fn get_games_for_day(date: &NaiveDate) -> Games {
     let daily_url: String =

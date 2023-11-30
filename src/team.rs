@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Hash, Eq)]
+#[derive(Debug, Serialize, Deserialize, Hash, Eq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Team {
     pub abbreviation: String,
