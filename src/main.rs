@@ -38,11 +38,31 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{:#?}", result);
 
-    for i in 8..=8 {
+    for i in 9..=11 {
         let this_week = FantasyWeek::new(i, i);
-        weekly_data_factory::get_loaded_schedule_report(i, &this_week).await;
-    }
+        let mut report = weekly_data_factory::get_loaded_schedule_report(i, &this_week).await; // println!("{:#?}", report);
 
+
+
+        weekly_data_factory::teams_with_four_games(
+            i,
+            &mut report.game_count,
+            &mut report.front_heavy_teams,
+            &mut report.back_heavy_teams,
+        );
+
+        weekly_data_factory::get_overloaded_teams(
+            &mut report.game_count,
+            &mut report.front_heavy_teams,
+            "front loaded",
+        );
+
+        weekly_data_factory::get_overloaded_teams(
+            &mut report.game_count,
+            &mut report.back_heavy_teams,
+            "back loaded",
+        );
+    }
 
     Ok(())
 }
@@ -52,3 +72,34 @@ async fn main() -> Result<(), Box<dyn Error>> {
 // .get_league_resource()
 // .await
 // .expect("Error asking Yahoo!");
+// println!()
+//
+// #[tokio::main]
+// async fn main() -> Result<(), Box<dyn Error>> {
+//     yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
+//
+//     let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
+//     let mut weekly_reports = vec![];
+//
+//     let result = fantasy_factory
+//         .yahoo_client
+//         .get_access_token()
+//         .await
+//         .expect("Main access token error!");
+//
+//     println!("{:#?}", result);
+//
+//     for i in 9..=11 {
+//         let this_week = FantasyWeek::new(i, i);
+//         let mut report = weekly_data_factory::get_loaded_schedule_report(i, &this_week).await; // println!("{:#?}", report);
+//         weekly_reports.push(report);
+//     }
+//
+//     let reports_iter = weekly_reports.iter();
+//     reports_iter.for_each(|x| crate::generate_overloaded_reports(&mut x))
+//
+//     crate::generate_overloaded_reports(i, &mut report);
+// }
+//
+// Ok(())
+// }

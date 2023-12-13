@@ -1,6 +1,7 @@
 use crate::player::NhlFranchise::ColoradoAvalanche;
 use crate::Team;
 
+#[derive(Debug)]
 pub enum Position {
     Center,
     LeftWing,
@@ -8,6 +9,7 @@ pub enum Position {
     Defense,
     Goalie,
 }
+#[derive(Debug)]
 pub enum NhlFranchise {
     ColoradoAvalanche(Team),
     FloridaPanthers(Team),
@@ -15,10 +17,12 @@ pub enum NhlFranchise {
 }
 
 impl Default for NhlFranchise { 
-    fn default () -> Self{ NhlFranchise::ColoradoAvalanche(Default::default()) }
+    fn default () -> Self {
+        NhlFranchise::ColoradoAvalanche(Default::default())
+    }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Player {
     pub first_name: String,
     pub last_name: String,
@@ -34,18 +38,15 @@ impl Player {
             last_name: "".to_string(),
             position: vec![],
             prioritize: false,
-            team: ColoradoAvalanche(Team {
-                abbreviation: "".to_string(),
-                full_name: None,
-            }),
+            team: ColoradoAvalanche(Default::default())
         }
     }
+}
 
 
     // pub fn default() -> Self {
     //     Self
     // }
-}
 
 // pub fn collides_with(/*&self,*/ player_in_question: Player, ) -> CollisionReport {
 

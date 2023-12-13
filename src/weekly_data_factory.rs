@@ -19,29 +19,27 @@ use std::collections::HashMap;
 /// EOF after 20 consecutive weeks
 /// WEEK 26 Final week of season
 /// ```
-pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> HashMap<Team, i32> {
+pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> Report {
     let mut report = Report::default();
 
     for days in this_week.start.iter_days().take(7).enumerate() {
         report.daily_games.push(get_games_for_day(&days.1).await);
 
-        report.home_teams = report
-            .daily_games
-            .iter()
-            .nth(report.index as usize)
-            .unwrap()
-            .games
-            .iter()
+        let report_iter = report
+                .daily_games
+                .iter()
+                .nth(report.index as usize)
+                .unwrap()
+                .games
+                .iter();
+
+        report.home_teams = report_iter
+            .to_owned()
             .map(|each_game| each_game.schedule.home_team.to_owned())
             .collect();
 
-        report.away_teams = report
-            .daily_games
-            .iter()
-            .nth(report.index as usize)
-            .unwrap()
-            .games
-            .iter()
+        report.away_teams = report_iter
+            .to_owned()
             .map(|each_game| each_game.schedule.away_team.to_owned())
             .collect();
 
@@ -88,28 +86,28 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> H
 
         report.index += 1
     }
+    //
+    // teams_with_four_games(
+    //     week,
+    //     &mut report.game_count,
+    //     &mut report.front_heavy_teams,
+    //     &mut report.back_heavy_teams,
+    // );
+    // get_overloaded_teams(
+    //     &mut report.game_count,
+    //     &mut report.front_heavy_teams,
+    //     "front loaded",
+    // );
+    // get_overloaded_teams(
+    //     &mut report.game_count,
+    //     &mut report.back_heavy_teams,
+    //     "back loaded",
+    // );
 
-    teams_with_four_games(
-        week,
-        &mut report.game_count,
-        &mut report.front_heavy_teams,
-        &mut report.back_heavy_teams,
-    );
-    get_overloaded_teams(
-        &mut report.game_count,
-        &mut report.front_heavy_teams,
-        "front loaded",
-    );
-    get_overloaded_teams(
-        &mut report.game_count,
-        &mut report.back_heavy_teams,
-        "back loaded",
-    );
-
     println!();
     println!();
     println!();
-    report.teams_playing_four_or_more
+    report
 }
 
 // async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report, weekday_index: i64) {
@@ -156,7 +154,7 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
     games_today
 }
 
-fn teams_with_four_games(
+pub(crate) fn teams_with_four_games(
     week: u64,
     game_count: &mut HashMap<Team, i32>,
     front_heavy_teams: &mut HashMap<Team, i32>,
@@ -182,7 +180,7 @@ fn teams_with_four_games(
     println!();
 }
 
-fn get_overloaded_teams(
+pub(crate) fn get_overloaded_teams(
     game_count: &mut HashMap<Team, i32>,
     loaded_teams: &mut HashMap<Team, i32>,
     description: &str,
