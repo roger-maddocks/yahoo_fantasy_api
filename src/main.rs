@@ -10,6 +10,8 @@ use serde::Serialize;
 use serde_urlencoded;
 use std::error::Error;
 use std::ops::Add;
+use crate::report::Report;
+use crate::weekly_data_factory::{teams_with_three_loaded_games, teams_with_four_games};
 
 mod collision_report;
 mod fantasy_week;
@@ -29,6 +31,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
 
     let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
+    let mut weekly_reports: Vec<Report> =  vec![];
+    let mut week_index= vec![];
 
     let result = fantasy_factory
         .yahoo_client
@@ -39,67 +43,25 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("{:#?}", result);
 
     for i in 9..=11 {
+        week_index.push(i);
         let this_week = FantasyWeek::new(i, i);
-        let mut report = weekly_data_factory::get_loaded_schedule_report(i, &this_week).await; // println!("{:#?}", report);
+        let report = weekly_data_factory::get_loaded_schedule_report(i, &this_week).await; // println!("{:#?}", report);
 
+        weekly_reports.push(report);
+        println!("WEEK {} DATA RETRIEVED", i);
+    }
 
+    let mut indexed_report_iter = week_index.iter().zip(weekly_reports.iter());
 
-        weekly_data_factory::teams_with_four_games(
-            i,
-            &mut report.game_count,
-            &mut report.front_heavy_teams,
-            &mut report.back_heavy_teams,
-        );
-
-        weekly_data_factory::get_overloaded_teams(
-            &mut report.game_count,
-            &mut report.front_heavy_teams,
-            "front loaded",
-        );
-
-        weekly_data_factory::get_overloaded_teams(
-            &mut report.game_count,
-            &mut report.back_heavy_teams,
-            "back loaded",
-        );
+    for _ in 0 .. weekly_reports.iter().count() {
+        generate_overloaded_reports(&mut indexed_report_iter.next());
     }
 
     Ok(())
 }
 
-// fantasy_factory.get_league_resource().await;
-// let game_form = fantasy_factory
-// .get_league_resource()
-// .await
-// .expect("Error asking Yahoo!");
-// println!()
-//
-// #[tokio::main]
-// async fn main() -> Result<(), Box<dyn Error>> {
-//     yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
-//
-//     let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
-//     let mut weekly_reports = vec![];
-//
-//     let result = fantasy_factory
-//         .yahoo_client
-//         .get_access_token()
-//         .await
-//         .expect("Main access token error!");
-//
-//     println!("{:#?}", result);
-//
-//     for i in 9..=11 {
-//         let this_week = FantasyWeek::new(i, i);
-//         let mut report = weekly_data_factory::get_loaded_schedule_report(i, &this_week).await; // println!("{:#?}", report);
-//         weekly_reports.push(report);
-//     }
-//
-//     let reports_iter = weekly_reports.iter();
-//     reports_iter.for_each(|x| crate::generate_overloaded_reports(&mut x))
-//
-//     crate::generate_overloaded_reports(i, &mut report);
-// }
-//
-// Ok(())
-// }
+fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
+    teams_with_four_games(indexed_report); //this_indexed_report.0.to_owned(), this_indexed_report.1);
+    teams_with_three_loaded_games(indexed_report);
+}
+

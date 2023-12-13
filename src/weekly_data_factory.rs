@@ -86,56 +86,10 @@ pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> R
 
         report.index += 1
     }
-    //
-    // teams_with_four_games(
-    //     week,
-    //     &mut report.game_count,
-    //     &mut report.front_heavy_teams,
-    //     &mut report.back_heavy_teams,
-    // );
-    // get_overloaded_teams(
-    //     &mut report.game_count,
-    //     &mut report.front_heavy_teams,
-    //     "front loaded",
-    // );
-    // get_overloaded_teams(
-    //     &mut report.game_count,
-    //     &mut report.back_heavy_teams,
-    //     "back loaded",
-    // );
 
-    println!();
-    println!();
-    println!();
     report
 }
 
-// async fn get_week_report(week: u64, this_week: &FantasyWeek, report: &mut Report, weekday_index: i64) {
-//     for days in this_week.start.iter_days().take(7).enumerate() {
-//         report.daily_games.push(get_games_for_day(&days.1).await);
-//
-//         report.home_teams = report
-//             .daily_games
-//             .games(weekday_index)
-//             .iter()
-//             .map(|this_game| this_game.schedule.home_team.to_owned())
-//             .collect();
-//
-//         report.away_teams = report
-//             .daily_games
-//             .games(weekday_index)
-//             .iter()
-//             .map(|this_game| this_game.schedule.away_team.to_owned())
-//             .collect();
-//
-//         register_games(
-//             &mut report.game_count,
-//             &report.home_teams.to_owned(),
-//             &report.away_teams.to_owned(),
-//         )
-//         .await
-//     }
-// }
 
 async fn get_games_for_day(date: &NaiveDate) -> Games {
     let daily_url: String =
@@ -154,21 +108,21 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
     games_today
 }
 
-pub(crate) fn teams_with_four_games(
-    week: u64,
-    game_count: &mut HashMap<Team, i32>,
-    front_heavy_teams: &mut HashMap<Team, i32>,
-    back_heavy_teams: &mut HashMap<Team, i32>,
-) {
-    print_starting_block(week);
+pub(crate) fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>) {
 
-    for (key, value) in game_count.iter() {
+    let mut this_indexed_report= indexed_report.unwrap();
+    let mut report = this_indexed_report.1;
+
+    print_starting_block(this_indexed_report.0.to_owned());
+
+
+    for (key, value) in report.game_count.iter() {
         if *value >= 4 {
             // let mut update_string = "";
             // max_count.insert(key.clone(), value.clone());
-            if front_heavy_teams.get_key_value(key) == Some((&key, &3)) {
+            if report.front_heavy_teams.get_key_value(key) == Some((&key, &3)) {
                 println!("| Team: {} | front heavy schedule |", key.abbreviation);
-            } else if back_heavy_teams.get_key_value(key) == Some((&key, &3)) {
+            } else if report.back_heavy_teams.get_key_value(key) == Some((&key, &3)) {
                 println!("| Team: {} | back heavy schedule  |", key.abbreviation);
             } else {
                 println!("| Team: {} | distributed schedule |", key.abbreviation);
@@ -180,7 +134,25 @@ pub(crate) fn teams_with_four_games(
     println!();
 }
 
-pub(crate) fn get_overloaded_teams(
+pub(crate) fn teams_with_three_loaded_games(indexed_report: &mut Option<(&u64, &Report)>) {
+
+    let mut this_indexed_report= indexed_report.unwrap();
+    let mut report = this_indexed_report.1;
+
+    get_loaded_teams(
+        &mut report.game_count.clone(),
+        &mut report.front_heavy_teams.clone(),
+        "front loaded",
+    );
+
+    get_loaded_teams(
+        &mut report.game_count.to_owned(),
+        &mut report.back_heavy_teams.to_owned(),
+        "back loaded",
+    );
+}
+
+pub(crate) fn get_loaded_teams(
     game_count: &mut HashMap<Team, i32>,
     loaded_teams: &mut HashMap<Team, i32>,
     description: &str,
@@ -229,21 +201,16 @@ fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
 }
 
 fn format_team_workload_separator(description: &str) {
-    match description {
-        x if x.contains("front") => {
-            println!("---------------------------------------------------------------")
-        }
-        x if x.contains("back") => {
-            println!("--------------------------------------------------------------")
-        }
-        _ => panic!("Error formatting front/back loaded weeks"),
-    }
 
+    format_based_on_description(description);
     println!(
         "| Teams playing less than four games with {} lineup |",
         description
     );
+    format_based_on_description(description);
+}
 
+fn format_based_on_description(description: &str) {
     match description {
         x if x.contains("front") => {
             println!("---------------------------------------------------------------")
@@ -251,7 +218,7 @@ fn format_team_workload_separator(description: &str) {
         x if x.contains("back") => {
             println!("--------------------------------------------------------------")
         }
-        _ => panic!("Error formatting front/back loaded weeks"),
+        _ => panic!("Error formatting front/back description"),
     }
 }
 
