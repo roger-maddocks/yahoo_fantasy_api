@@ -1,5 +1,5 @@
-use crate::fantasy_week::FantasyWeek;
-use crate::report::Report;
+use crate::models::fantasy_week::FantasyWeek;
+use crate::models::report::Report;
 use crate::scheduled_games::Games;
 use crate::team::Team;
 use chrono::{Duration, NaiveDate};
@@ -19,7 +19,7 @@ use std::collections::HashMap;
 /// EOF after 20 consecutive weeks
 /// WEEK 26 Final week of season
 /// ```
-pub async fn get_loaded_schedule_report(week: u64, this_week: &FantasyWeek) -> Report {
+pub async fn get_loaded_schedule_report(this_week: &FantasyWeek) -> Report {
     let mut report = Report::default();
 
     for days in this_week.start.iter_days().take(7).enumerate() {
@@ -191,10 +191,10 @@ fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
     for team in team_collection {
         match game_count.get(&team) {
             Some(count) => {
-                game_count.insert(team.clone(), count + 1);
+                game_count.insert(team.to_owned(), count + 1);
             }
             None => {
-                game_count.insert(team.clone(), 1);
+                game_count.insert(team.to_owned(), 1);
             }
         }
     }

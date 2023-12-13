@@ -1,5 +1,5 @@
 use crate::player::NhlFranchise::ColoradoAvalanche;
-use crate::Team;
+use crate::models::team::Team;
 
 #[derive(Debug)]
 pub enum Position {

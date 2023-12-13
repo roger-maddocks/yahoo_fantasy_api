@@ -1,4 +1,4 @@
-use crate::fantasy_week::FantasyWeek;
+use crate::models::fantasy_week::FantasyWeek;
 use crate::player::{Player, Position};
 use crate::scheduled_games::Games;
 use crate::team::Team;

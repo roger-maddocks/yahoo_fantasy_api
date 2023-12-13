@@ -1,4 +1,4 @@
-use crate::collision_report::CollisionReport;
+use crate::models::collision_report::CollisionReport;
 use crate::player::Player;
 
 pub fn get_positional_collision_report(collision_base: CollisionReport) {
