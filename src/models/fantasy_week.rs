@@ -3,7 +3,7 @@ use chrono::Days;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FantasyWeek {
     pub start: NaiveDate,
     pub end: NaiveDate,
