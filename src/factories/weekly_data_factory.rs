@@ -105,6 +105,18 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
         .await
         .unwrap();
 
+    // USE THIS TO SEE FULL JSON RETURNED
+    // let games_test = reqwest::Client::new()
+    //     .get(daily_url.clone() + &date.format("%Y%m%d").to_string())
+    //     .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
+    //     .send()
+    //     .await
+    //     .unwrap()
+    //     .text()
+    //     .await
+    //     .unwrap();
+    // println!("{:?}", games_test);
+
     games_today
 }
 

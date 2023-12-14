@@ -1,6 +1,8 @@
 use crate::player::Player;
 use chrono::NaiveDate;
 use std::collections::HashMap;
+use crate::builders::roster_builder::Roster;
+use crate::models::player;
 
 enum RegularSeason {
     StartDate(NaiveDate),
@@ -10,13 +12,11 @@ enum RegularSeason {
     FinalWeek((NaiveDate, NaiveDate)),
 }
 pub struct CollisionReport {
-    player_ayy: Option<Player>,
-    player_bee: Option<Player>,
-    player_see: Option<Player>,
+    pub roster: Roster,
     start_week: NaiveDate,
     end_week: NaiveDate,
     season_collisions: i8,
-    weekly_collisions: HashMap<i8, i8>, //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
+    pub weekly_collisions: HashMap<u64, u64>, //TODO: Hashmap or Vec or other collection? Collision object > week_number, collisions
 }
 
 /// Requirements for new collision report
@@ -24,33 +24,28 @@ pub struct CollisionReport {
 ///
 impl CollisionReport {
     pub fn new(
-        player_ayy: Option<Player>,
-        player_bee: Option<Player>,
-        player_see: Option<Player>,
+        roster: Roster,
         start_week: NaiveDate,
         end_week: NaiveDate,
         season_collisions: i8,
-        weekly_collisions: HashMap<i8, i8>,
+        weekly_collisions: HashMap<u64, u64>,
     ) -> Self {
         Self {
-            player_ayy,
-            player_bee,
-            player_see,
+            roster,
             start_week,
             end_week,
             season_collisions,
             weekly_collisions,
         }
     }
+
     pub fn default() -> Self {
         Self {
-            player_ayy: Some(Player::new()),
-            player_bee: Some(Player::new()),
-            player_see: Some(Player::new()),
+            roster: Default::default(),
             start_week: Default::default(),
             end_week: Default::default(),
             season_collisions: 0,
-            weekly_collisions: Default::default(),
+            weekly_collisions: HashMap::new()
         }
     }
 }
