@@ -39,7 +39,7 @@ impl YahooFantasyFactory {
         let client = reqwest::Client::new();
 
 
-        println!("{:?}",self.yahoo_client.get_headers.clone() );
+        // println!("{:?}",self.yahoo_client.get_headers.clone() );
 
         let response = client
             .get(url)
@@ -59,7 +59,53 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
-    pub async fn get_my_roster() -> Roster {
+    pub async fn get_my_roster(&self) -> Result<(), Error> {
+        let url = "https://fantasysports.yahooapis.com/fantasy/v2/team/427.l.28172.t.8/roster;";
+        let client = reqwest::Client::new();
+
+        // println!("{:?}",self.yahoo_client.get_headers.clone() );
+
+        let response = client
+            .get(url)
+            .headers(self.yahoo_client.get_headers.clone())
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await;
+
+        println!("roster: {:?}", response.unwrap());
+
+        // let body = response.text().await?;
+        // println!("{:?}", body);
+
+        Ok(())
+    }
+
+    pub async fn get_free_agents(&self) -> Result<(), Error> {
+        let url = "https://fantasysports.yahooapis.com/fantasy/v2/league/427.l.28172/players;status=A";
+        let client = reqwest::Client::new();
+
+        // println!("{:?}",self.yahoo_client.get_headers.clone() );
+
+        let response = client
+            .get(url)
+            .headers(self.yahoo_client.get_headers.clone())
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await;
+
+        println!("roster: {:?}", response.unwrap());
+
+        // let body = response.text().await?;
+        // println!("{:?}", body);
+
+        Ok(())
+    }
+
+    pub async fn get_test_roster() -> Roster {
         let mut my_roster = Roster::new();
 
         let position = vec![Center];

@@ -30,7 +30,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await
         .expect("Main access token error!");
 
-    let a = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
+    // let a = YahooFantasyFactory::get_free_agents(&fantasy_factory).await;
+    let a = YahooFantasyFactory::get_my_roster(&fantasy_factory).await;
+    // let a = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
 
     println!("League Resource: {:?}", a);
 
@@ -74,16 +76,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
 //2 Centers => No collisions guaranteed
 
 async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>) {
-    let mut my_roster = YahooFantasyFactory::get_my_roster().await;
-    let mut my_base_collision_report = CollisionReport::new(
-        my_roster,
-        Default::default(),
-        Default::default(),
-        0,
-        Default::default()
-    );
-
-    factories::player_data_factory::get_positional_collision_report(indexed_report, &mut my_base_collision_report);
+    // let mut my_roster = YahooFantasyFactory::get_my_roster().await;
+    // let mut my_base_collision_report = CollisionReport::new(
+    //     my_roster,
+    //     Default::default(),
+    //     Default::default(),
+    //     0,
+    //     Default::default()
+    // );
+    //
+    // factories::player_data_factory::get_positional_collision_report(indexed_report, &mut my_base_collision_report);
 }
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
