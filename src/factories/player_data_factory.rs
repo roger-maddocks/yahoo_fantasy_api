@@ -1,4 +1,4 @@
-use crate::helpers;
+use crate::helpers::{general_helpers, visual_helpers};
 use crate::models::collision_report::CollisionReport;
 use crate::models::player::Position;
 use crate::models::player::Position::Center;
@@ -12,16 +12,14 @@ pub fn get_positional_collision_report(indexed_report: &mut Option<(&u64, &Repor
     let mut report = this_indexed_report.1;
     let mut team_ids = vec![];
     let mut weekday = 0;
+    let mut position = Center;
 
 
-    for (player) in collision_base.roster.get_player_by_position(vec![Center]) {
+    for (player) in collision_base.roster.get_player_by_position(vec![position.clone()]) {
         team_ids.push(player.team.msf_id)
     }
 
-    println!(" ------------------");
-    println!("|     WEEK {:?}      |", this_indexed_report.0.clone());
-    println!("| COLLISION REPORT |");
-    println!(" ------------------");
+    visual_helpers::format_collision_report_block(&mut this_indexed_report);
 
     for (key) in report.daily_games.iter() {
 
@@ -40,7 +38,7 @@ pub fn get_positional_collision_report(indexed_report: &mut Option<(&u64, &Repor
             }
 
             if collision_count > 2  {
-                println!("Inserting Collision! day: {:#?}, week: {:#?}", helpers::get_day_from_number(&weekday), this_indexed_report.0.clone());
+                println!("Inserting Collision! day: {:#?}, week: {:#?}, position: {:#?}", general_helpers::get_day_from_number(&weekday), this_indexed_report.0.clone(), position);
                 collision_base.weekly_collisions.insert(this_indexed_report.0.clone(), weekday);
                 break
             }
@@ -50,5 +48,4 @@ pub fn get_positional_collision_report(indexed_report: &mut Option<(&u64, &Repor
         }
         weekday += 1;
     }
-
 }

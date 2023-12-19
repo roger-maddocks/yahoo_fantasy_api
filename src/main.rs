@@ -9,6 +9,7 @@ use serde::Serialize;
 use serde_urlencoded;
 use std::error::Error;
 use std::ops::Add;
+use crate::factories::yahoo_fantasy_factory;
 use crate::models::collision_report::CollisionReport;
 
 mod factories;
@@ -18,11 +19,10 @@ mod helpers;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    models::yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
+
+    yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
 
     let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
-    let mut week_index = vec![];
-    let mut weekly_reports: Vec<Report> = vec![];
 
     let result = fantasy_factory
         .yahoo_client
@@ -30,32 +30,41 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await
         .expect("Main access token error!");
 
+    let a = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
+
+    println!("League Resource: {:?}", a);
+
     println!("{:#?}", result);
 
-    for i in 14..=16 {
-        let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
-
-        week_index.push(i);
-        weekly_reports.push(report);
-
-        println!("WEEK {} DATA RETRIEVED", i);
-    }
-
-    let mut indexed_overloaded_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
-    let mut indexed_collision_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
-
-    for _ in 0..weekly_reports.iter().count() {
-        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
-            .await;
-    }
-
-
-    println!();
-    println!();
-    for _ in 0..weekly_reports.iter().count() {
-        get_my_collision_report(&mut indexed_collision_report_iter.next())
-            .await;
-    }
+    // let mut week_index = vec![];
+    // let mut weekly_reports: Vec<Report> = vec![];
+    // for i in 14..=16 {
+    //     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
+    //
+    //     week_index.push(i);
+    //     weekly_reports.push(report);
+    //
+    //     println!("WEEK {} DATA RETRIEVED", i);
+    // }
+    //
+    // let mut report_base = week_index.iter().zip(weekly_reports.iter());
+    // let mut indexed_overloaded_report_iter = report_base.clone();
+    // let mut indexed_collision_report_iter = report_base.clone();
+    // // let mut indexed_overloaded_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
+    // // let mut indexed_collision_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
+    //
+    // for _ in 0..weekly_reports.iter().count() {
+    //     generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
+    //         .await;
+    // }
+    //
+    //
+    // println!();
+    // println!();
+    // for _ in 0..weekly_reports.iter().count() {
+    //     get_my_collision_report(&mut indexed_collision_report_iter.next())
+    //         .await;
+    // }
 
     Ok(())
 }

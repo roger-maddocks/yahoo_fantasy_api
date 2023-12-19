@@ -4,6 +4,7 @@ use crate::scheduled_games::Games;
 use crate::team::Team;
 use chrono::{Duration, NaiveDate};
 use std::collections::HashMap;
+use crate::helpers::visual_helpers;
 
 ///
 ///
@@ -125,8 +126,7 @@ pub(crate) fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>
     let mut this_indexed_report= indexed_report.unwrap();
     let mut report = this_indexed_report.1;
 
-    print_starting_block(this_indexed_report.0.to_owned());
-
+    visual_helpers::print_starting_block(this_indexed_report.0.to_owned());
 
     for (key, value) in report.game_count.iter() {
         if *value >= 4 {
@@ -214,32 +214,11 @@ fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
 
 fn format_team_workload_separator(description: &str) {
 
-    format_based_on_description(description);
+    visual_helpers::format_based_on_description(description);
     println!(
         "| Teams playing less than four games with {} lineup |",
         description
     );
-    format_based_on_description(description);
+    visual_helpers::format_based_on_description(description);
 }
 
-fn format_based_on_description(description: &str) {
-    match description {
-        x if x.contains("front") => {
-            println!("---------------------------------------------------------------")
-        }
-        x if x.contains("back") => {
-            println!("--------------------------------------------------------------")
-        }
-        _ => panic!("Error formatting front/back description"),
-    }
-}
-
-fn print_starting_block(week: u64) {
-    println!("|--------------------------|");
-    println!("|--------- WEEK {} ---------|", week);
-    println!("|--------------------------|");
-    println!();
-    println!("------------------------------------");
-    println!("|   Teams with 4 Games this week   |");
-    println!("------------------------------------");
-}

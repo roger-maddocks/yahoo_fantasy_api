@@ -34,14 +34,27 @@ impl YahooFantasyFactory {
     }
 
     pub async fn get_league_resource(&self) -> Result<(), Error> {
-        let url =
-            self.yahoo_client.fantasy_sports_url.clone() + &self.league.to_string().to_lowercase();
-        let response = reqwest::get(url.to_string()).await?;
-        println!("{:?}", response.status());
-        println!("{:?}", response.headers());
+        let url = "https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games;game_keys=nhl/teams";
+            // self.yahoo_client.fantasy_sports_url.to_owned() +  &"team".to_string();//&self.league.to_string().to_lowercase();
+        let client = reqwest::Client::new();
 
-        let body = response.text().await?;
-        println!("{:?}", body);
+
+        println!("{:?}",self.yahoo_client.get_headers.clone() );
+
+        let response = client
+            .get(url)
+            .headers(self.yahoo_client.get_headers.clone())
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await;
+
+            //reqwest::get(url.to_string()).await?;
+        println!("{:?}", response.unwrap());
+
+        // let body = response.text().await?;
+        // println!("{:?}", body);
 
         Ok(())
     }
