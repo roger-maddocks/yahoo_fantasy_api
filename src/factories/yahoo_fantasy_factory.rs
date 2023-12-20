@@ -1,4 +1,4 @@
-use crate::yahoo_auth_profile::YahooConnection;
+use crate::yahoo_auth_profile::YahooAuthClient;
 use reqwest::Error;
 use std::fmt;
 use std::fmt::Formatter;
@@ -20,14 +20,14 @@ impl fmt::Display for League {
     }
 }
 pub struct YahooFantasyFactory {
-    pub yahoo_client: YahooConnection,
+    pub yahoo_client: YahooAuthClient,
     league: League,
 }
 
 impl YahooFantasyFactory {
     pub fn new_factory(league: League) -> Self {
         YahooFantasyFactory {
-            yahoo_client: YahooConnection::new(),
+            yahoo_client: YahooAuthClient::new(),
             league,
         }
     }
@@ -44,7 +44,7 @@ impl YahooFantasyFactory {
 
         let response = client
             .get(url)
-            .headers(self.yahoo_client.get_headers.clone())
+            .headers(self.yahoo_client.request_headers.clone())
             .send()
             .await
             .unwrap()
@@ -56,15 +56,16 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
-    pub async fn get_free_agents(&self) -> Result<(), Error> {
+    pub async fn get_free_agents(&mut self) -> Result<(), Error> {
         let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;status=A";
         let client = reqwest::Client::new();
+        self.yahoo_client.generate_get_request_headers().await;
 
-        // println!("{:?}",self.yahoo_client.get_headers.clone() );
+        println!("Debug headers: {:?}", self.yahoo_client.request_headers.clone());
 
         let response = client
             .get(url)
-            .headers(self.yahoo_client.get_headers.clone())
+            .headers(self.yahoo_client.request_headers.clone())
             .send()
             .await
             .unwrap()
@@ -78,30 +79,20 @@ impl YahooFantasyFactory {
 
         Ok(())
     }
-    pub async fn get_league_resource(&self) -> Result<(), Error> {
+    pub async fn get_league_resource(&self) -> Result<String, Error> {
         let url = env!["YAHOO_V2_URL"].to_string() + "/users;use_login=1/games;game_keys=nhl/teams";
-        // self.yahoo_client.fantasy_sports_url.to_owned() +  &"team".to_string();//&self.league.to_string().to_lowercase();
         let client = reqwest::Client::new();
-
-
-        // println!("{:?}",self.yahoo_client.get_headers.clone() );
 
         let response = client
             .get(url)
-            .headers(self.yahoo_client.get_headers.clone())
+            .headers(self.yahoo_client.request_headers.clone())
             .send()
             .await
             .unwrap()
             .text()
             .await;
 
-        //reqwest::get(url.to_string()).await?;
-        println!("{:?}", response.unwrap());
-
-        // let body = response.text().await?;
-        // println!("{:?}", body);
-
-        Ok(())
+        response
     }
 
     pub async fn get_test_roster() -> Roster {

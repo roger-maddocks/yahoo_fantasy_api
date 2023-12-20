@@ -23,35 +23,24 @@ mod helpers;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
-    yahoo_auth_profile::YahooConnection::get_redirect_url_for_auth_code();
+    yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
 
-    let fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
+    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
 
-    let result = fantasy_factory
-        .yahoo_client
-        .get_access_token_json()
-        .await;
+    println!("before token update {:?}", fantasy_factory.yahoo_client.access_token);
 
-    println!("{:#?}", result);
+    fantasy_factory.yahoo_client.refresh_access_token().await;
 
-    let res= fantasy_factory
-        .yahoo_client
-        .get_access_token()
-        .await
-        .unwrap();
+    println!("after token update {:?}", fantasy_factory.yahoo_client.access_token);
 
-    println!("{:#?}", res);
-
-    //
-    // let my_free_agents = YahooFantasyFactory::get_free_agents(&fantasy_factory).await;
-    // println!("League Free Agents: {:?}", my_free_agents);
+    let my_free_agents = fantasy_factory.get_free_agents().await;
+    println!("League Free Agents: {:?}", my_free_agents);
     //
     // let my_roster = YahooFantasyFactory::get_my_roster(&fantasy_factory).await;
     // println!("My Roster : {:?}", my_roster);
     //
-    // let my_league_resource = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
-    // println!("League Resource: {:?}", my_league_resource);
-    //
+    // let my_league_resource = fantasy_factory.get_league_resource();
+    // println!("League Resource: {:?}", my_league_resource.await);
 
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
@@ -83,6 +72,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+// let result = fantasy_factory
+//     .yahoo_client
+//     .get_access_token_json()
+//     .await;
 
 //using my roster, check each position for days with more players than slots available
 //3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
@@ -102,6 +95,6 @@ async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>) {
 }
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
-    teams_with_four_games(indexed_report);
-    teams_with_three_loaded_games(indexed_report);
+    teams_with_four_games(indexed_report).await;
+    teams_with_three_loaded_games(indexed_report).await;
 }

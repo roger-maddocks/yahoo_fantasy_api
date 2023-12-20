@@ -98,18 +98,6 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
     let daily_url: String =
         "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
 
-    // USE THIS TO SEE FULL JSON RETURNED
-    let games_test = reqwest::Client::new()
-        .get(daily_url.clone() + &date.format("%Y%m%d").to_string())
-        .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
-    println!("{:?}", games_test);
-
     let games_today = reqwest::Client::new()
         .get(daily_url + &date.format("%Y%m%d").to_string())
         .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
@@ -120,13 +108,10 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
         .await
         .unwrap();
 
-
-
-
     games_today
 }
 
-pub(crate) fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>) {
+pub async fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>) {
 
     let mut this_indexed_report= indexed_report.unwrap();
     let mut report = this_indexed_report.1;
@@ -149,7 +134,7 @@ pub(crate) fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>
     println!();
 }
 
-pub(crate) fn teams_with_three_loaded_games(indexed_report: &mut Option<(&u64, &Report)>) {
+pub async fn teams_with_three_loaded_games(indexed_report: &mut Option<(&u64, &Report)>) {
 
     let mut this_indexed_report= indexed_report.unwrap();
     let mut report = this_indexed_report.1;
@@ -158,16 +143,16 @@ pub(crate) fn teams_with_three_loaded_games(indexed_report: &mut Option<(&u64, &
         &mut report.game_count.clone(),
         &mut report.front_heavy_teams.clone(),
         "front loaded",
-    );
+    ).await;
 
     get_loaded_teams(
         &mut report.game_count.to_owned(),
         &mut report.back_heavy_teams.to_owned(),
         "back loaded",
-    );
+    ).await;
 }
 
-pub(crate) fn get_loaded_teams(
+pub async fn get_loaded_teams(
     game_count: &mut HashMap<Team, i32>,
     loaded_teams: &mut HashMap<Team, i32>,
     description: &str,
