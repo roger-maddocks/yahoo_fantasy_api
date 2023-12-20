@@ -5,8 +5,10 @@ use oauth2::http::{HeaderMap, HeaderValue};
 use oauth2::url;
 use oauth2::{ClientId, ClientSecret, RevocableToken};
 use std::str::FromStr;
+use serde::Serialize;
 use thiserror::Error;
 use url::{form_urlencoded, Url};
+use crate::models::scheduled_games::Game;
 
 pub struct YahooConnection {
     pub(crate) token_params: YahooTokenRequest,
@@ -61,6 +63,21 @@ impl YahooConnection {
             .unwrap();
 
         Some(response)
+    }
+    pub async fn get_access_token_json(&self) -> YahooRefreshTokenResponse {
+        let client = reqwest::Client::new();
+        let response  = client
+            .post(&self.token_url)
+            .form(&self.refresh_token_params)
+            .headers(self.auth_headers.clone())
+            .send()
+            .await
+            .unwrap()
+            .json()
+            .await
+            .unwrap();
+
+        response
     }
 
     // pub async fn get_access_token(&self) -> Option<YahooRefreshTokenResponse> {
@@ -142,22 +159,34 @@ impl YahooRefreshTokenRequest {
 }
 
 /// Yahoo's response values when requesting token refresh
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooRefreshTokenResponse {
-    access_token: String,
-    refresh_token: String,
-    expires_in: u64,
-    token_type: String,
+    pub access_token: Option<String>,
+    pub refresh_token: Option<String>,
+    pub expires_in: Option<u64>,
+    pub token_type: Option<String>,
 }
+
+impl YahooRefreshTokenResponse {
+    pub fn new() -> Self {
+        YahooRefreshTokenResponse {
+            access_token: None,
+            refresh_token: None,
+            expires_in: None,
+            token_type: None,
+        }
+    }
+}
+
 
 ///Yahoo required fields for Get request
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct YahooGetRequest {
-    client_id: String,
-    client_secret: String,
-    authorization: String,
-    refresh_token: String,
+    pub client_id: String,
+    pub client_secret: String,
+    pub authorization: String,
+    pub refresh_token: String,
 }
 impl YahooGetRequest {
     pub fn new() -> Self {
@@ -168,6 +197,12 @@ impl YahooGetRequest {
             refresh_token: "".to_string(),
         }
     }
+}
+
+#[derive(Debug, Serialize, serde::Deserialize, Clone )]
+#[serde(rename_all = "camelCase")]
+pub struct YahooResponses {
+    pub tokens: Vec<YahooRefreshTokenResponse>
 }
 
 fn generate_refresh_token_headers(

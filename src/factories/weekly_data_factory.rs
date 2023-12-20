@@ -92,9 +92,23 @@ pub async fn get_loaded_schedule_report(this_week: &FantasyWeek) -> Report {
 }
 
 
+/// Use get_games_for_day_test to see full json returned
 async fn get_games_for_day(date: &NaiveDate) -> Games {
+
     let daily_url: String =
         "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+
+    // USE THIS TO SEE FULL JSON RETURNED
+    let games_test = reqwest::Client::new()
+        .get(daily_url.clone() + &date.format("%Y%m%d").to_string())
+        .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    println!("{:?}", games_test);
 
     let games_today = reqwest::Client::new()
         .get(daily_url + &date.format("%Y%m%d").to_string())
@@ -106,17 +120,8 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
         .await
         .unwrap();
 
-    // USE THIS TO SEE FULL JSON RETURNED
-    // let games_test = reqwest::Client::new()
-    //     .get(daily_url.clone() + &date.format("%Y%m%d").to_string())
-    //     .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
-    //     .send()
-    //     .await
-    //     .unwrap()
-    //     .text()
-    //     .await
-    //     .unwrap();
-    // println!("{:?}", games_test);
+
+
 
     games_today
 }
@@ -130,8 +135,6 @@ pub(crate) fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>
 
     for (key, value) in report.game_count.iter() {
         if *value >= 4 {
-            // let mut update_string = "";
-            // max_count.insert(key.clone(), value.clone());
             if report.front_heavy_teams.get_key_value(key) == Some((&key, &3)) {
                 println!("| Team: {} | front heavy schedule |", key.abbreviation);
             } else if report.back_heavy_teams.get_key_value(key) == Some((&key, &3)) {
@@ -222,3 +225,22 @@ fn format_team_workload_separator(description: &str) {
     visual_helpers::format_based_on_description(description);
 }
 
+///
+pub async fn get_games_for_day_test(date: &NaiveDate) -> String {
+    let daily_url: String =
+        "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
+
+    // USE THIS TO SEE FULL JSON RETURNED
+    let games_test = reqwest::Client::new()
+        .get(daily_url.clone() + &date.format("%Y%m%d").to_string())
+        .basic_auth(env!("MSF_API_KEY"), Some(env!("MSF_PASSWORD")))
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap();
+    println!("{:?}", games_test);
+
+    games_test
+}

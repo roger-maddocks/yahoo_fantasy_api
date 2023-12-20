@@ -1,3 +1,4 @@
+use crate::yahoo_auth_profile::YahooResponses;
 use crate::factories::weekly_data_factory::{teams_with_four_games, teams_with_three_loaded_games};
 use crate::factories::yahoo_fantasy_factory::{League, YahooFantasyFactory};
 use crate::models::{report::Report, player, fantasy_week::FantasyWeek, regular_season, roster, scheduled_games, team, yahoo_auth_profile };
@@ -9,6 +10,8 @@ use serde::Serialize;
 use serde_urlencoded;
 use std::error::Error;
 use std::ops::Add;
+use chrono::NaiveDate;
+use futures::TryFutureExt;
 use crate::factories::yahoo_fantasy_factory;
 use crate::models::collision_report::CollisionReport;
 
@@ -26,47 +29,57 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let result = fantasy_factory
         .yahoo_client
-        .get_access_token()
-        .await
-        .expect("Main access token error!");
-
-    // let a = YahooFantasyFactory::get_free_agents(&fantasy_factory).await;
-    let a = YahooFantasyFactory::get_my_roster(&fantasy_factory).await;
-    // let a = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
-
-    println!("League Resource: {:?}", a);
+        .get_access_token_json()
+        .await;
 
     println!("{:#?}", result);
 
-    // let mut week_index = vec![];
-    // let mut weekly_reports: Vec<Report> = vec![];
-    // for i in 14..=16 {
-    //     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
+    let res= fantasy_factory
+        .yahoo_client
+        .get_access_token()
+        .await
+        .unwrap();
+
+    println!("{:#?}", res);
+
     //
-    //     week_index.push(i);
-    //     weekly_reports.push(report);
+    // let my_free_agents = YahooFantasyFactory::get_free_agents(&fantasy_factory).await;
+    // println!("League Free Agents: {:?}", my_free_agents);
     //
-    //     println!("WEEK {} DATA RETRIEVED", i);
-    // }
+    // let my_roster = YahooFantasyFactory::get_my_roster(&fantasy_factory).await;
+    // println!("My Roster : {:?}", my_roster);
     //
-    // let mut report_base = week_index.iter().zip(weekly_reports.iter());
-    // let mut indexed_overloaded_report_iter = report_base.clone();
-    // let mut indexed_collision_report_iter = report_base.clone();
-    // // let mut indexed_overloaded_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
-    // // let mut indexed_collision_report_iter = week_index.iter().zip(weekly_reports.iter()).clone();
+    // let my_league_resource = YahooFantasyFactory::get_league_resource(&fantasy_factory).await;
+    // println!("League Resource: {:?}", my_league_resource);
     //
-    // for _ in 0..weekly_reports.iter().count() {
-    //     generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
-    //         .await;
-    // }
-    //
-    //
-    // println!();
-    // println!();
-    // for _ in 0..weekly_reports.iter().count() {
-    //     get_my_collision_report(&mut indexed_collision_report_iter.next())
-    //         .await;
-    // }
+
+    let mut week_index = vec![];
+    let mut weekly_reports: Vec<Report> = vec![];
+    for i in 14..=14 {
+        let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
+
+        week_index.push(i);
+        weekly_reports.push(report);
+
+        println!("WEEK {} DATA RETRIEVED", i);
+    }
+
+    let mut report_base = week_index.iter().zip(weekly_reports.iter());
+    let mut indexed_overloaded_report_iter = report_base.clone();
+    let mut indexed_collision_report_iter = report_base.clone();
+
+    for _ in 0..weekly_reports.len() {
+        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
+            .await;
+    }
+
+
+    println!();
+    println!();
+    for _ in 0..weekly_reports.iter().count() {
+        get_my_collision_report(&mut indexed_collision_report_iter.next())
+            .await;
+    }
 
     Ok(())
 }
