@@ -11,7 +11,7 @@ use serde_urlencoded;
 use std::error::Error;
 use std::ops::Add;
 use chrono::NaiveDate;
-use futures::TryFutureExt;
+use futures::{FutureExt, TryFutureExt};
 use crate::factories::yahoo_fantasy_factory;
 use crate::models::collision_report::CollisionReport;
 
@@ -23,27 +23,23 @@ mod helpers;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
 
-    yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
+    // yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
 
-    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl);
+    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
+    let mut another_factory = fantasy_factory.clone();
 
-    println!("before token update {:?}", fantasy_factory.yahoo_client.access_token);
-
-    fantasy_factory.yahoo_client.refresh_access_token().await;
-
-    println!("after token update {:?}", fantasy_factory.yahoo_client.access_token);
-
-    let my_free_agents = fantasy_factory.get_free_agents().await;
+    let my_free_agents = fantasy_factory.await.get_free_agents().await;
     println!("League Free Agents: {:?}", my_free_agents);
-    //
-    // let my_roster = YahooFantasyFactory::get_my_roster(&fantasy_factory).await;
-    // println!("My Roster : {:?}", my_roster);
-    //
-    // let my_league_resource = fantasy_factory.get_league_resource();
-    // println!("League Resource: {:?}", my_league_resource.await);
+
+    let my_roster = another_factory.await.get_free_agents().await;
+    println!("My Roster : {:?}", my_roster);
+
+    let my_league_resource = fantasy_factory.await.get_league_resource();
+    println!("League Resource: {:?}", my_league_resource.await);
 
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
+
     for i in 14..=14 {
         let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
 
@@ -60,14 +56,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for _ in 0..weekly_reports.len() {
         generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
             .await;
+
     }
 
+    println!();
+    println!();
 
-    println!();
-    println!();
     for _ in 0..weekly_reports.iter().count() {
-        get_my_collision_report(&mut indexed_collision_report_iter.next())
-            .await;
+        // get_my_collision_report(&mut indexed_collision_report_iter.next())
+        //     .await;
     }
 
     Ok(())
@@ -77,12 +74,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
 //     .get_access_token_json()
 //     .await;
 
-//using my roster, check each position for days with more players than slots available
-//3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
-//2 Centers => No collisions guaranteed
-
-async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>) {
-    // let mut my_roster = YahooFantasyFactory::get_my_roster().await;
+///using my roster, check each position for days with more players than slots available
+///3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
+///2 Centers => No collisions guaranteed
+async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>, factory: &YahooFantasyFactory) {
+    // let mut my_roster = factory.get_my_roster().await.unwrap();
     // let mut my_base_collision_report = CollisionReport::new(
     //     my_roster,
     //     Default::default(),

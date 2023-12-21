@@ -6,8 +6,9 @@ use crate::builders::roster_builder::Roster;
 use crate::models::player::{NhlFranchise, Player, Position};
 use crate::models::player::Position::Center;
 use crate::models::team::Team;
+use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum League {
     Nhl,
     Nba,
@@ -19,15 +20,16 @@ impl fmt::Display for League {
         write!(f, "{:?}", self)
     }
 }
+#[derive(Clone)]
 pub struct YahooFantasyFactory {
     pub yahoo_client: YahooAuthClient,
     league: League,
 }
 
 impl YahooFantasyFactory {
-    pub fn new_factory(league: League) -> Self {
+    pub async fn new_factory(league: League) -> YahooFantasyFactory {
         YahooFantasyFactory {
-            yahoo_client: YahooAuthClient::new(),
+            yahoo_client: YahooAuthClientBuilder::new().build().await,
             league,
         }
     }
@@ -56,10 +58,10 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
-    pub async fn get_free_agents(&mut self) -> Result<(), Error> {
+    pub async fn get_free_agents(&self) -> Result<(), Error> {
         let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;status=A";
         let client = reqwest::Client::new();
-        self.yahoo_client.generate_get_request_headers().await;
+        // self.yahoo_client.generate_get_request_headers().await;
 
         println!("Debug headers: {:?}", self.yahoo_client.request_headers.clone());
 

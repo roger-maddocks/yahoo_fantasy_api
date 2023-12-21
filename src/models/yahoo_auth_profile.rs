@@ -7,7 +7,11 @@ use std::str::FromStr;
 use serde::Serialize;
 use thiserror::Error;
 use url::{form_urlencoded, Url};
+use crate::models::player::Position::Defense;
+use crate::builders::yahoo_auth_client_builder;
+use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 
+#[derive(Clone)]
 pub struct YahooAuthClient {
     pub token_params: YahooTokenRequest,
     pub auth_params: YahooAuthRequest,
@@ -21,42 +25,8 @@ pub struct YahooAuthClient {
 }
 
 impl YahooAuthClient {
-    pub fn new() -> Self {
-        YahooAuthClient {
-            token_params: YahooTokenRequest::new(),
-            auth_params: YahooAuthRequest::new(),
-            refresh_token_params: YahooRefreshTokenRequest::new(),
-            token_url: env!("YAHOO_TOKEN_URL").to_string(),
-            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
-            fantasy_sports_url: env!("YAHOO_V2_URL").to_string() + "/",
-            request_headers: Default::default(),
-            access_token: "".to_string(),
-            auth_headers: generate_refresh_token_headers(
-                ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
-                Some(ClientSecret::new(env!("YAHOO_CLIENT_SECRET").to_string())).unwrap()
-            ),
-        }
-    }
-    pub async fn refresh_access_token(&mut self) {
-        let client = reqwest::Client::new();
-        let response: YahooRefreshTokenResponse  = client
-            .post(&self.token_url)
-            .form(&self.refresh_token_params)
-            .headers(self.auth_headers.clone())
-            .send()
-            .await
-            .unwrap()
-            .json()
-            .await
-            .unwrap();
-
-        self.access_token = response.access_token.unwrap()
-    }
-    pub fn get_redirect_url_for_auth_code() {
-        let auth = YahooAuthClient::new();
-        let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
-        let url = auth.auth_url.to_string() + &encoded_string;
-        println!("{:#?}", url);
+    pub fn builder() -> YahooAuthClientBuilder {
+        YahooAuthClientBuilder::default()
     }
     pub async fn generate_get_request_headers(&mut self) {
         self.request_headers.append(
@@ -64,26 +34,16 @@ impl YahooAuthClient {
             HeaderValue::from_str(&format!("Bearer {}", self.access_token)).unwrap(),
         );
     }
-
-    // pub async fn get_access_token(&self) -> Option<YahooRefreshTokenResponse> {
-    //     let client = reqwest::Client::new();
-    //     let response: YahooRefreshTokenResponse = client
-    //         .post(&self.token_url)
-    //         .form(&self.refresh_token_params)
-    //         .headers(self.headers.clone())
-    //         .send()
-    //         .await
-    //         .expect("Get token error!")
-    //         .json()
-    //         .await
-    //         .unwrap();
-    //
-    //     Some(response)
+    // pub fn get_redirect_url_for_auth_code() {
+    //     let auth = YahooAuthClientBuilder::new().build();
+    //     let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
+    //     let url = auth.auth_url.to_string() + &encoded_string;
+    //     println!("{:#?}", url);
     // }
 }
 
 ///Yahoo required fields for initiating auth request
-#[derive(Default, serde::Serialize, serde::Deserialize)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Clone)]
 pub struct YahooAuthRequest {
     client_id: String,
     client_secret: String,
@@ -102,7 +62,7 @@ impl YahooAuthRequest {
 }
 
 ///Yahoo required fields for acquiring access token
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooTokenRequest {
     client_id: String,
     client_secret: String,
@@ -123,7 +83,7 @@ impl YahooTokenRequest {
 }
 
 ///Yahoo required fields for refreshing access token
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooRefreshTokenRequest {
     grant_type: String,
     client_id: String,
@@ -190,7 +150,7 @@ pub struct YahooResponses {
     pub tokens: Vec<YahooRefreshTokenResponse>
 }
 
-fn generate_refresh_token_headers(
+pub(crate) fn generate_refresh_token_headers(
     client_id: ClientId,
     secret: ClientSecret,
 ) -> HeaderMap {
