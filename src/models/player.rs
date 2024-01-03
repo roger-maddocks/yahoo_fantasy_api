@@ -6,8 +6,7 @@ use crate::models::team::Team;
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Player {
-    pub first_name: String,
-    pub last_name: String,
+    pub name: Option<Name>,
     pub position: Vec<Position>,
     pub prioritize: bool,
     pub franchise: NhlFranchise,
@@ -26,8 +25,7 @@ impl Player {
         yahoo_team_key: String
     ) -> Player {
         Self {
-            first_name,
-            last_name,
+            name: Option::from(Name::new(first_name, last_name)),
             position,
             prioritize,
             franchise,
@@ -37,8 +35,7 @@ impl Player {
     }
     pub fn default() -> Player {
         Self {
-            first_name: "".to_string(),
-            last_name: "".to_string(),
+            name: Default::default(),
             position: vec![Center],
             prioritize: false,
             franchise: ColoradoAvalanche,
@@ -79,6 +76,30 @@ impl PartialEq for NhlFranchise {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+pub struct Name {
+    #[serde(rename = "full")]
+    pub full_name: String,
+    #[serde(rename = "first")]
+    pub first_name: String,
+    #[serde(rename = "last")]
+    pub last_name: String,
+    pub ascii_first: String,
+    pub ascii_last: String,
+}
+impl Name {
+    pub fn new(first: String, last: String) -> Name{
+        Name {
+            full_name: first.clone() + &last.clone(),
+            first_name: first,
+            last_name: last,
+            ascii_first: "".to_string(),
+            ascii_last: "".to_string(),
+        }
+
+
+    }
+}
 
     // pub fn default() -> Self {
     //     Self

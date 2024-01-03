@@ -22,50 +22,50 @@ mod helpers;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
     // yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
 
     let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
-    let mut another_factory = fantasy_factory.clone();
+    // fantasy_factory.r
+    // let mut another_factory = fantasy_factory.clone();
 
-    let my_free_agents = fantasy_factory.await.get_free_agents().await;
-    println!("League Free Agents: {:?}", my_free_agents);
+    // let my_free_agents = fantasy_factory.await.get_free_agents().await;
+    // println!("League Free Agents: {:?}", my_free_agents);
 
-    let my_roster = another_factory.await.get_free_agents().await;
-    println!("My Roster : {:?}", my_roster);
+    let my_free_agents= fantasy_factory.await.get_free_agents().await;
+    println!("Free Agnets : {:?}", my_free_agents);
 
-    let my_league_resource = fantasy_factory.await.get_league_resource();
-    println!("League Resource: {:?}", my_league_resource.await);
+    // let my_league_resource = fantasy_factory.await.get_league_resource();
+    // println!("League Resource: {:?}", my_league_resource.await);
 
-    let mut week_index = vec![];
-    let mut weekly_reports: Vec<Report> = vec![];
-
-    for i in 14..=14 {
-        let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
-
-        week_index.push(i);
-        weekly_reports.push(report);
-
-        println!("WEEK {} DATA RETRIEVED", i);
-    }
-
-    let mut report_base = week_index.iter().zip(weekly_reports.iter());
-    let mut indexed_overloaded_report_iter = report_base.clone();
-    let mut indexed_collision_report_iter = report_base.clone();
-
-    for _ in 0..weekly_reports.len() {
-        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
-            .await;
-
-    }
-
-    println!();
-    println!();
-
-    for _ in 0..weekly_reports.iter().count() {
-        // get_my_collision_report(&mut indexed_collision_report_iter.next())
-        //     .await;
-    }
+    // let mut week_index = vec![];
+    // let mut weekly_reports: Vec<Report> = vec![];
+    //
+    // for i in 14..=14 {
+    //     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(i,i)).await;
+    //
+    //     week_index.push(i);
+    //     weekly_reports.push(report);
+    //
+    //     println!("WEEK {} DATA RETRIEVED", i);
+    // }
+    //
+    // let mut report_base = week_index.iter().zip(weekly_reports.iter());
+    // let mut indexed_overloaded_report_iter = report_base.clone();
+    // let mut indexed_collision_report_iter = report_base.clone();
+    //
+    // for _ in 0..weekly_reports.len() {
+    //     generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
+    //         .await;
+    //
+    // }
+    //
+    // println!();
+    // println!();
+    //
+    // for _ in 0..weekly_reports.iter().count() {
+    //     // get_my_collision_report(&mut indexed_collision_report_iter.next())
+    //     //     .await;
+    // }
 
     Ok(())
 }

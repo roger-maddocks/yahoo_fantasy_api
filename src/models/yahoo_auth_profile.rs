@@ -1,14 +1,12 @@
 use anyhow;
 use oauth2;
 use oauth2::http::{HeaderMap, HeaderValue};
-use oauth2::{RefreshTokenRequest, url};
+use oauth2::{url};
 use oauth2::{ClientId, ClientSecret, RevocableToken};
 use std::str::FromStr;
 use serde::Serialize;
 use thiserror::Error;
 use url::{form_urlencoded, Url};
-use crate::models::player::Position::Defense;
-use crate::builders::yahoo_auth_client_builder;
 use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 
 #[derive(Clone)]
@@ -97,8 +95,8 @@ impl YahooRefreshTokenRequest {
             grant_type: "refresh_token".to_string(),
             client_id: env!("YAHOO_CLIENT_ID").to_string(),
             client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
-            redirect_uri: "oob".to_string(), //"https://www.google.com".to_string(),
-            refresh_token: env!("YAHOO_REFRESH_TOKEN").to_string(), //env!("YAHOO_REFRESH_TOKEN").to_string()//"ABozVWW1mLQ5sPJ_JjhZkKMu1pHU~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E".to_string()//
+            redirect_uri: "oob".to_string(),
+            refresh_token: env!("YAHOO_REFRESH_TOKEN").to_string(),
         }
     }
 }

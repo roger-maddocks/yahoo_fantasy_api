@@ -63,7 +63,9 @@ impl YahooAuthClientBuilder {
             .await
             .unwrap();
 
-        self.access_token = response.access_token.unwrap()
+        self.access_token = response.access_token.unwrap();
+        println!("{:?}", self.access_token);
+
     }
 
     // pub async fn get_access_token(&self) -> Option<YahooRefreshTokenResponse> {

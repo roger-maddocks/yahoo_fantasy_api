@@ -1,7 +1,10 @@
+use crate::models::yahoo_player::YahooPlayers;
 use crate::yahoo_auth_profile::YahooAuthClient;
 use reqwest::Error;
 use std::fmt;
 use std::fmt::Formatter;
+// use serde_xml;
+use serde_json::Value;
 use crate::builders::roster_builder::Roster;
 use crate::models::player::{NhlFranchise, Player, Position};
 use crate::models::player::Position::Center;
@@ -58,23 +61,54 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
-    pub async fn get_free_agents(&self) -> Result<(), Error> {
-        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;status=A";
+    pub async fn get_free_agents(&mut self) -> Result<(), serde_json::Error> {//-> Result<(), Error> {
+        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
         let client = reqwest::Client::new();
-        // self.yahoo_client.generate_get_request_headers().await;
+        self.yahoo_client.generate_get_request_headers().await;
 
-        println!("Debug headers: {:?}", self.yahoo_client.request_headers.clone());
-
-        let response = client
+        // println!("Debug headers: {:?}", self.yahoo_client.request_headers.clone());
+        let response = client//: YahooPlayers = client
             .get(url)
             .headers(self.yahoo_client.request_headers.clone())
             .send()
             .await
             .unwrap()
             .text()
-            .await;
+            .await
+            .unwrap();
 
-        println!("roster: {:?}", response.unwrap());
+        let mut something = "".to_string();
+        for line in response.lines() {
+            // println!("{:?}", &line);
+           something += line.trim();
+        }
+        // println!("{:?}", &response);
+        println!(r#"{:?}"#, &something);
+
+        // let doc: YahooPlayers = serde_xml::from_str(&response.to_owned()).unwrap();
+
+        // let doc: YahooPlayers = serde_xml::from_str(&something).unwrap();
+        // let doc = quick_xml::Reader::from_str(&response);
+        // let doc = roxmltree::Document::parse(&something);
+        for token in xmlparser::Tokenizer::from(&*something) {
+            // println!("--{:#?}", token.unwrap());
+        }
+        // response.lines().for_each(move |x| -> let a = xmlparser::Tokenizer::from(x));
+        // println!("response.xml(): {:?}", doc);
+
+        // let parsed: Value = serde_json::from_str(&response.to_string().clone())?;
+
+        // let response = client
+        //     .get(url)
+        //     .headers(self.yahoo_client.request_headers.clone())
+        //     .send()
+        //     .await
+        //     .unwrap()
+        //     .json()
+        //     .await
+        //     .unwrap();
+
+        // println!("roster: {:#?}", parsed);
 
         // let body = response.text().await?;
         // println!("{:?}", body);

@@ -8,3 +8,4 @@ pub mod roster;
 pub mod scheduled_games;
 pub mod team;
 pub mod yahoo_auth_profile;
+pub mod yahoo_player;

@@ -14,9 +14,9 @@ pub fn get_positional_collision_report(indexed_report: &mut Option<(&u64, &Repor
     let mut weekday = 0;
     let mut position = Center;
 
-
-    for (player) in collision_base.roster.get_player_by_position(vec![position.clone()]) {
-        team_ids.push(player.team.msf_id)
+    for (player) in collision_base.roster.get_player_by_position(
+        vec![position.clone()]) {
+            team_ids.push(player.team.msf_id)
     }
 
     visual_helpers::format_collision_report_block(&mut this_indexed_report);
