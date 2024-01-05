@@ -63,7 +63,7 @@ impl YahooFantasyFactory {
     }
 
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
-        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;start=200;count=25;status=A;position=LW";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
+        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;count=5;status=T;sort=PTS";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
         let client = reqwest::Client::new();
         self.yahoo_client.generate_get_request_headers().await;
 
@@ -78,25 +78,31 @@ impl YahooFantasyFactory {
             .await
             .unwrap();
 
-        let mut something = "".to_string();
-        for line in response.lines() {
-            // println!("{:?}", &line);
-           something += line.trim();
-        }
-        // println!("{:?}", &response);
-        println!(r#"{:#?}"#, &something);
-
-        // let doc: YahooPlayers = serde_xml::from_str(&response.to_owned()).unwrap();
-
-        // let doc: YahooPlayers = serde_xml::from_str(&something).unwrap();
-        // let doc = quick_xml::Reader::from_str(&response);
-        let doc = roxmltree::Document::parse(&something);//.unwrap().root_element().descendants();
+        let doc = roxmltree::Document::parse(&response);
 
         for node in doc.unwrap().descendants() {
             if node.tag_name() != ExpandedName::from("") {
-                println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+                match node.tag_name().name() {
+                    x if Some(x) == Option::from("full") =>  println!("> {:?} ", node.text()),
+                    _ => ()
+                };
             }
         }
+
+        // for node in doc.unwrap().descendants().clone() {
+        //     println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+        // }
+        //
+        // for node in doc.unwrap().descendants() {
+        //     if node.tag_name() != ExpandedName::from("") {
+        //         match node.text() {
+        //             x if x == Option::from("\n    ") =>  println!("> {:?} Parent: ", node.tag_name().name()),
+        //             x if x == Option::from("\n     ") =>  println!(">> {:?} Object: ", node.tag_name().name()),
+        //             x if x == Option::from("") => (),
+        //             _ => println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text()),
+        //         };
+        //     }
+        // }
 
         // for node in doc.unwrap().descendants() {
         //     // node.fmt(&mut YahooPlayer);
