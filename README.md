@@ -3,7 +3,7 @@ Implementation of Yahoo api prioritizing Fantasy Hockey
 
 Technical Debt:
 
->>>>>>>>>TodDo
+>>>>>>>>>ToDo
 Collision Report
   > Weekly
   > Year
@@ -11,6 +11,9 @@ Collision Report
 Head-to-Head Player Trends 
   > Last X timeframe vs last x*2 time frame
   > Road vs. Home
+Free Agency Targets 
+  >Players on Front/Back heavy teams
+  >Players that play 3 out of next 4 days
 What-if Scores
   > Left Roster alone 
   > Absolute optimization

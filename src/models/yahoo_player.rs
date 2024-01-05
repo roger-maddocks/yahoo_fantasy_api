@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::Formatter;
 use chrono::NaiveDate;
 // use serde_xml;
 use oauth2::http::HeaderMap;
@@ -7,11 +9,11 @@ use serde::Deserialize;
 
 #[derive(Default, serde::Serialize,Deserialize,  Debug, Clone)]
 pub struct YahooPlayers {
-    players: Vec<Player>
+    players: Vec<YahooPlayer>
 }
 
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
-pub struct Player {
+pub struct YahooPlayer {
     player_key: String,
     player_id: u64,
     name: String,
@@ -45,6 +47,14 @@ pub struct Player {
     selected_position: SelectedPosition,
     is_editable: bool,
 }
+
+// impl fmt::Debug for YahooPlayer {
+//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+//         f.debug_map("")
+//             .key("").
+//
+//     }
+// }
 
 
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]

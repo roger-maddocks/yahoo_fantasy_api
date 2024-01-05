@@ -1,8 +1,9 @@
-use crate::models::yahoo_player::YahooPlayers;
+use crate::models::yahoo_player::{YahooPlayer, YahooPlayers};
 use crate::yahoo_auth_profile::YahooAuthClient;
 use reqwest::Error;
 use std::fmt;
-use std::fmt::Formatter;
+use std::fmt::{Debug, Formatter};
+use roxmltree::ExpandedName;
 // use serde_xml;
 use serde_json::Value;
 use crate::builders::roster_builder::Roster;
@@ -61,8 +62,8 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
-    pub async fn get_free_agents(&mut self) -> Result<(), serde_json::Error> {//-> Result<(), Error> {
-        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
+    pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
+        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;start=200;count=25;status=A;position=LW";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
         let client = reqwest::Client::new();
         self.yahoo_client.generate_get_request_headers().await;
 
@@ -83,16 +84,30 @@ impl YahooFantasyFactory {
            something += line.trim();
         }
         // println!("{:?}", &response);
-        println!(r#"{:?}"#, &something);
+        println!(r#"{:#?}"#, &something);
 
         // let doc: YahooPlayers = serde_xml::from_str(&response.to_owned()).unwrap();
 
         // let doc: YahooPlayers = serde_xml::from_str(&something).unwrap();
         // let doc = quick_xml::Reader::from_str(&response);
-        // let doc = roxmltree::Document::parse(&something);
-        for token in xmlparser::Tokenizer::from(&*something) {
-            // println!("--{:#?}", token.unwrap());
+        let doc = roxmltree::Document::parse(&something);//.unwrap().root_element().descendants();
+
+        for node in doc.unwrap().descendants() {
+            if node.tag_name() != ExpandedName::from("") {
+                println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+            }
         }
+
+        // for node in doc.unwrap().descendants() {
+        //     // node.fmt(&mut YahooPlayer);
+        //     println!("{:?}", node);
+        //     println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+        //
+        // }
+        // println!(r#"test: {:#?}"#, doc.unwrap().root().descendants());
+        // for token in xmlparser::Tokenizer::from(&*something) {
+        //     println!("--{:#?}", token);
+        // }
         // response.lines().for_each(move |x| -> let a = xmlparser::Tokenizer::from(x));
         // println!("response.xml(): {:?}", doc);
 

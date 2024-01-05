@@ -32,12 +32,6 @@ impl YahooAuthClient {
             HeaderValue::from_str(&format!("Bearer {}", self.access_token)).unwrap(),
         );
     }
-    // pub fn get_redirect_url_for_auth_code() {
-    //     let auth = YahooAuthClientBuilder::new().build();
-    //     let encoded_string = serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
-    //     let url = auth.auth_url.to_string() + &encoded_string;
-    //     println!("{:#?}", url);
-    // }
 }
 
 ///Yahoo required fields for initiating auth request
