@@ -8,7 +8,7 @@ use roxmltree::ExpandedName;
 use serde_json::Value;
 use crate::builders::roster_builder::Roster;
 use crate::models::player::{NhlFranchise, Player, Position};
-use crate::models::player::Position::Center;
+use crate::models::player::Position::C;
 use crate::models::team::Team;
 use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 
@@ -55,15 +55,22 @@ impl YahooFantasyFactory {
             .await
             .unwrap()
             .text()
-            .await;
+            .await
+            .unwrap();
 
-        println!("roster: {:?}", response.unwrap());
+        let doc = roxmltree::Document::parse(&response);
+
+        for node in doc.unwrap().descendants() {
+            println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+        }
+
+        // println!("roster: {:?}", response.unwrap());
 
         Ok(())
     }
 
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
-        let url = env!["YAHOO_V2_URL"].to_string() + "/league/427.l.28172/players;count=5;status=T;sort=PTS";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
+        let url = env!["YAHOO_V2_URL"].to_string() + "/game/nhl";//"/league/427.l.28172/players;count=5;status=A;sort=PTS";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
         let client = reqwest::Client::new();
         self.yahoo_client.generate_get_request_headers().await;
 
@@ -80,18 +87,18 @@ impl YahooFantasyFactory {
 
         let doc = roxmltree::Document::parse(&response);
 
-        for node in doc.unwrap().descendants() {
-            if node.tag_name() != ExpandedName::from("") {
-                match node.tag_name().name() {
-                    x if Some(x) == Option::from("full") =>  println!("> {:?} ", node.text()),
-                    _ => ()
-                };
-            }
-        }
-
-        // for node in doc.unwrap().descendants().clone() {
-        //     println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+        // for node in doc.unwrap().descendants() {
+        //     if node.tag_name() != ExpandedName::from("") {
+        //         match node.tag_name().name() {
+        //             x if Some(x) == Option::from("full") =>  println!("> {:?} ", node.text()),
+        //             _ => ()
+        //         };
+        //     }
         // }
+
+        for node in doc.unwrap().descendants() {
+            println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
+        }
         //
         // for node in doc.unwrap().descendants() {
         //     if node.tag_name() != ExpandedName::from("") {
@@ -155,7 +162,7 @@ impl YahooFantasyFactory {
     pub async fn get_test_roster() -> Roster {
         let mut my_roster = Roster::new();
 
-        let position = vec![Center];
+        let position = vec![C];
         let elias = Player::new("Elias".to_string(), "Pettersson".to_string(), position.clone(), false, NhlFranchise::VancouverCanucks, Team::new("VAN".to_string(), 21), "".to_string());
         // "VAN", msf_id: 21
 
