@@ -25,13 +25,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
 
     let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
-    // let mut another_factory = fantasy_factory.clone();
+
+    let _ = fantasy_factory.await.get_free_agents().await;
 
     // let my_free_agents = fantasy_factory.await.get_free_agents().await;
     // println!("League Free Agents: {:?}", my_free_agents);
 
-    let my_free_agents= fantasy_factory.await.get_free_agents().await;
-    println!("Free Agents : {:?}", my_free_agents.unwrap());
 
     // let my_league_resource = fantasy_factory.await.get_league_resource();
     // println!("League Resource: {:?}", my_league_resource.await);
@@ -57,9 +56,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     //         .await;
     //
     // }
-    //
-    // println!();
-    // println!();
     //
     // for _ in 0..weekly_reports.iter().count() {
     //     // get_my_collision_report(&mut indexed_collision_report_iter.next())
