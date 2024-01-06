@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use crate::models::player::{Player, Position};
-use crate::models::player::Position::{Center, Defense, LeftWing, RightWing};
+use crate::models::player::Position::{C, D, LW, RW};
 
 #[derive(Debug, Default, Clone)]
 pub struct Roster {

@@ -180,22 +180,3 @@ pub enum YahooError {
     #[error("construcing yahoo! finance client failed")]
     BuilderFailed,
 }
-
-// APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E
-
-// deprecated token
-// pub async fn get_access_token(&self) -> Option<String> {
-//     let client = reqwest::Client::new();
-//     let response= client
-//         .post(&self.token_url)
-//         .form(&self.refresh_token_params)
-//         .headers(self.auth_headers.clone())
-//         .send()
-//         .await
-//         .expect("Get token error!")
-//         .text()
-//         .await
-//         .unwrap();
-//
-//     Some(response)
-// }

@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::models::player::Position::Center;
+use crate::models::player::Position::C;
 use crate::player::NhlFranchise::ColoradoAvalanche;
 use crate::models::team::Team;
 
@@ -36,7 +36,7 @@ impl Player {
     pub fn default() -> Player {
         Self {
             name: Default::default(),
-            position: vec![Center],
+            position: vec![C],
             prioritize: false,
             franchise: ColoradoAvalanche,
             team: Default::default(),
@@ -48,11 +48,11 @@ impl Player {
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 pub enum Position {
     #[default]
-    Center,
-    LeftWing,
-    RightWing,
-    Defense,
-    Goalie,
+    C,
+    LW,
+    RW,
+    D,
+    G,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, Hash, Eq)]
 pub enum NhlFranchise {
