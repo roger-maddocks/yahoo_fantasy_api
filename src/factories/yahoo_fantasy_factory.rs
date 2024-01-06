@@ -69,12 +69,21 @@ impl YahooFantasyFactory {
         Ok(())
     }
 
+    ///
+    /// Different options to be implemented
+    /// //"/league/427.l.28172/players;count=5;status=A;sort=PTS";
+    /// //"/league/427.l.28172/players;status=A";
+    /// //"/league/427.l.28172";
+    /// //"/game/nhl";
+    ///
+    ///
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
-        let url = env!["YAHOO_V2_URL"].to_string() + "/game/nhl";//"/league/427.l.28172/players;count=5;status=A;sort=PTS";//"/league/427.l.28172/players;status=A";//"/league/427.l.28172"; //
+        let url = env!["YAHOO_V2_URL"]
+            .to_string() + "/league/427.l.28172/players;count=5;status=A;sort=PTS";
         let client = reqwest::Client::new();
+
         self.yahoo_client.generate_get_request_headers().await;
 
-        // println!("Debug headers: {:?}", self.yahoo_client.request_headers.clone());
         let response = client//: YahooPlayers = client
             .get(url)
             .headers(self.yahoo_client.request_headers.clone())
