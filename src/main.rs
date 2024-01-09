@@ -18,43 +18,75 @@ mod helpers;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // yahoo_auth_profile::YahooAuthClient::get_redirect_url_for_auth_code();
-    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
-    let mut user_input= String::new();
-    // user_input = get_user_command();
+    let mut user_input= "".to_string();
 
-    while valid_request(&get_user_command()) {
+    loop {
         user_input = get_user_command();
-        let mut local_factory = fantasy_factory.clone();
-        let _= local_factory.await.get_free_agents().await;
 
-        println!("a{:?}", user_input);
+        if exit_program(&user_input) {
+            println!("L8r sk8r");
+            break
+        }
+
+        perform_user_operation(user_input).await;
+
+
+        println!("input: {:?}", user_input);
 
         // match user_input {
-        //     // x if x.to_lowercase() == "fa" => local_factory.await.get_free_agents(),
         //     _ =>  ()
         // }
+    }
+
+    Ok(())
+}
+
+async fn perform_user_operation(input: String) ->  Result<(), Box<dyn Error>> {
+    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
+    let mut local_factory = fantasy_factory.clone();
+    let _= local_factory.await.get_free_agents().await;
+
+    match input.to_lowercase().trim() {
+        x if x == "setup" => {}
+        x if x.to_lowercase() == "fa" => local_factory.await.get_free_agents(),
+        _ => {
+            false
+        }
     }
     Ok(())
 }
 
-fn valid_request(input: &String) -> bool {
-    println!("b{:?}", input);
-    match input {
-        x if x.to_lowercase() == "q" => false,
-        x if x.is_empty() => false,
-        _ => true
+fn exit_program(input: &String) -> bool {
+
+    println!("User Entered: {:?}", &input);
+
+    match input.to_lowercase().trim() {
+        x if x == "q" => {
+            true
+        }
+        _ => {
+            false
+        }
     }
 }
 
+fn not_implemented(x: &str) {
+    println!("Whoops, I misguided you. The {:?} functionality is not supported yet!", x);
+}
+
 fn get_user_command() -> String {
-    println!("Enter \"Q\" to quit, or simply press enter with a blank line.");
+    print_program_options();
 
     let mut input = String::new();
     stdin()
         .read_line(&mut input)
         .expect("Issue reading User input!");
     input
+}
+
+fn print_program_options() {
+    println!("Enter \"S\" for initial setup.");
+    println!("Enter \"Q\" to quit.");
 }
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
