@@ -23,7 +23,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut user_input= "".to_string();
 
     loop {
-        // let _= fantasy_factory.await.get_free_agents().await;
         let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
 
         user_input = get_user_command()
@@ -42,9 +41,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 fantasy_factory.await.get_free_agents().await.unwrap()
             }
             x if x.to_lowercase().trim() == "wr" => {
-                get_overloaded_report().await;
+                get_overloaded_report().await
             }
             x if x.to_lowercase().trim() == "s" => {
+                not_implemented(&x)
+            }
+            x if x.to_lowercase().trim() == "cr" => {
+                not_implemented(&x)
+            }
+            x if x.to_lowercase().trim() == "cd" => {
                 not_implemented(&x)
             }
             x => { }
@@ -57,32 +62,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn get_overloaded_report() {
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
-
-    // for i in 14..=14 {
     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
 
     week_index.push(1);
     weekly_reports.push(report);
 
-    // }
-
     let mut report_base = week_index.iter().zip(weekly_reports.iter());
-    let mut indexed_overloaded_report_iter = report_base.clone();
-    // let mut indexed_collision_report_iter = report_base.clone();
 
-    for _ in 0..weekly_reports.len() {
-        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
+    for _ in 0..report_base.len() {
+        generate_overloaded_reports(&mut report_base.next())
             .await;
     }
+}
 
-    // for _ in 0..weekly_reports.iter().count() {
-    // get_my_collision_report(&mut indexed_collision_report_iter.next())
-    //     .await;
-    // }
-
-    // let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
-    // let _ = generate_overloaded_reports(fantasy_factory.await.yahoo_client)
-    // not_implemented(&x)
+///using my roster, check each position for days with more players than slots available
+///3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
+///2 Centers => No collisions guaranteed
+async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>, factory: &YahooFantasyFactory) {
+    // let mut my_roster = factory.get_my_roster().await.unwrap();
+    // let mut my_base_collision_report = CollisionReport::new(
+    //     my_roster,
+    //     Default::default(),
+    //     Default::default(),
+    //     0,
+    //     Default::default()
+    // );
+    //
+    // factories::player_data_factory::get_positional_collision_report(indexed_report, &mut my_base_collision_report);
 }
 
 fn get_user_report_bounds() -> u64 {
@@ -125,10 +131,14 @@ fn get_user_command() -> String {
 }
 
 fn print_program_options() {
+    println!("///////////////////////////////");
     println!("Enter \"S\" for initial setup.");
     println!("Enter \"FA\" for Free Agency operations.");
-    println!("Enter \"WR\" to view report from specific week.");
+    println!("Enter \"WR\" to view Week Report from specific week.");
+    println!("Enter \"CR\" to view Collision Report from specific week.");
+    println!("Enter \"CD\" to view Commissioner Dashboard from specific week.");
     println!("Enter \"Q\" to quit.");
+    println!("///////////////////////////////");
 }
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
@@ -136,21 +146,6 @@ async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)
     teams_with_three_loaded_games(indexed_report).await;
 }
 
-///using my roster, check each position for days with more players than slots available
-///3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
-///2 Centers => No collisions guaranteed
-async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>, factory: &YahooFantasyFactory) {
-    // let mut my_roster = factory.get_my_roster().await.unwrap();
-    // let mut my_base_collision_report = CollisionReport::new(
-    //     my_roster,
-    //     Default::default(),
-    //     Default::default(),
-    //     0,
-    //     Default::default()
-    // );
-    //
-    // factories::player_data_factory::get_positional_collision_report(indexed_report, &mut my_base_collision_report);
-}
 
 
 // let my_free_agents = fantasy_factory.await.get_free_agents().await;
