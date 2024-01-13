@@ -1,6 +1,6 @@
 use crate::factories::weekly_data_factory::{teams_with_four_games, teams_with_three_loaded_games};
 use crate::factories::yahoo_fantasy_factory::{League, YahooFantasyFactory};
-use crate::models::{report::Report, player, fantasy_week::FantasyWeek, regular_season, roster, scheduled_games, team, yahoo_auth_profile };
+use crate::models::{report::Report, player, scheduled_games, team, yahoo_auth_profile };
 use anyhow;
 use oauth2;
 use oauth2::{ErrorResponse, RevocableToken, TokenIntrospectionResponse, TokenResponse, TokenType};
@@ -11,6 +11,8 @@ use std::error::Error;
 use std::ops::Add;
 use std::io::stdin;
 use futures::{FutureExt, TryFutureExt};
+use crate::models::fantasy_week::FantasyWeek;
+
 mod factories;
 mod models;
 mod builders;
@@ -21,47 +23,85 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut user_input= "".to_string();
 
     loop {
-        user_input = get_user_command();
+        // let _= fantasy_factory.await.get_free_agents().await;
+        let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
+
+        user_input = get_user_command()
+            .to_lowercase()
+            .trim()
+            .parse()
+            .unwrap();
 
         if exit_program(&user_input) {
             println!("L8r sk8r");
             break
         }
 
-        perform_user_operation(user_input).await;
-
-
-        println!("input: {:?}", user_input);
-
-        // match user_input {
-        //     _ =>  ()
-        // }
+        match user_input {
+            x if x.to_lowercase().trim() == "fa" => {
+                fantasy_factory.await.get_free_agents().await.unwrap()
+            }
+            x if x.to_lowercase().trim() == "wr" => {
+                get_overloaded_report().await;
+            }
+            x if x.to_lowercase().trim() == "s" => {
+                not_implemented(&x)
+            }
+            x => { }
+        }
     }
 
     Ok(())
 }
 
-async fn perform_user_operation(input: String) ->  Result<(), Box<dyn Error>> {
-    let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
-    let mut local_factory = fantasy_factory.clone();
-    let _= local_factory.await.get_free_agents().await;
+async fn get_overloaded_report() {
+    let mut week_index = vec![];
+    let mut weekly_reports: Vec<Report> = vec![];
 
-    match input.to_lowercase().trim() {
-        x if x == "setup" => {}
-        x if x.to_lowercase() == "fa" => local_factory.await.get_free_agents(),
-        _ => {
-            false
-        }
+    // for i in 14..=14 {
+    let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
+
+    week_index.push(1);
+    weekly_reports.push(report);
+
+    // }
+
+    let mut report_base = week_index.iter().zip(weekly_reports.iter());
+    let mut indexed_overloaded_report_iter = report_base.clone();
+    // let mut indexed_collision_report_iter = report_base.clone();
+
+    for _ in 0..weekly_reports.len() {
+        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
+            .await;
     }
-    Ok(())
+
+    // for _ in 0..weekly_reports.iter().count() {
+    // get_my_collision_report(&mut indexed_collision_report_iter.next())
+    //     .await;
+    // }
+
+    // let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
+    // let _ = generate_overloaded_reports(fantasy_factory.await.yahoo_client)
+    // not_implemented(&x)
+}
+
+fn get_user_report_bounds() -> u64 {
+    println!("Enter which week (1 - 26) you would like the report for.");
+
+    let mut input = String::new();
+    stdin()
+        .read_line(&mut input)
+        .expect("Issue reading User input!");
+
+    input.trim().to_lowercase().parse().expect("User did not enter numeric value!")
 }
 
 fn exit_program(input: &String) -> bool {
-
-    println!("User Entered: {:?}", &input);
-
     match input.to_lowercase().trim() {
         x if x == "q" => {
+            true
+        }
+        x if x == "quit" => {
             true
         }
         _ => {
@@ -86,6 +126,8 @@ fn get_user_command() -> String {
 
 fn print_program_options() {
     println!("Enter \"S\" for initial setup.");
+    println!("Enter \"FA\" for Free Agency operations.");
+    println!("Enter \"WR\" to view report from specific week.");
     println!("Enter \"Q\" to quit.");
 }
 

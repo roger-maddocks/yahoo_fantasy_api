@@ -10,29 +10,30 @@ pub struct FantasyWeek {
 }
 
 impl FantasyWeek {
-    pub fn new(beginning_week: u64, ending_week: u64) -> FantasyWeek {
+    // pub fn new(beginning_week: u64, ending_week: u64) -> FantasyWeek {
+    pub fn new(week: u64) -> FantasyWeek {
         FantasyWeek {
             start: NaiveDate::from_ymd_opt(2023, 10, 2)
                 .unwrap()
-                .checked_add_days(Days::new(beginning_week * 7))
+                .checked_add_days(Days::new(week * 7))
                 .unwrap(),
             end: NaiveDate::from_ymd_opt(2023, 10, 8)
                 .unwrap()
-                .checked_add_days(Days::new(ending_week * 7))
+                .checked_add_days(Days::new(week * 7))
                 .unwrap(),
         }
     }
 
     pub fn get_season_start_week(&self) -> FantasyWeek {
-        FantasyWeek::new(1, 1)
+        FantasyWeek::new(1)
     }
 
     pub fn get_season_end_week(&self) -> FantasyWeek {
-        FantasyWeek::new(26, 26)
+        FantasyWeek::new(26)
     }
 
     pub fn get_week(&self, week_number: u64) -> FantasyWeek {
-        FantasyWeek::new(week_number, week_number)
+        FantasyWeek::new(week_number)
     }
 
     //can be changed to array due to known size? Any benefit?
@@ -43,7 +44,7 @@ impl FantasyWeek {
     ) -> Vec<FantasyWeek> {
         let mut all_weeks = vec![];
         for week in first_week_of_range..last_week_of_range + 1 {
-            all_weeks.push(FantasyWeek::new(week, week))
+            all_weeks.push(FantasyWeek::new(week))
         }
         all_weeks
     }
