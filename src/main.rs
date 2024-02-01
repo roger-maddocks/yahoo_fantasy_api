@@ -31,10 +31,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             .parse()
             .unwrap();
 
-        if exit_program(&user_input) {
-            println!("L8r sk8r");
-            break
-        }
+        if exit_program(&user_input) { break }
 
         match user_input {
             x if x.to_lowercase().trim() == "fa" => {
@@ -105,9 +102,11 @@ fn get_user_report_bounds() -> u64 {
 fn exit_program(input: &String) -> bool {
     match input.to_lowercase().trim() {
         x if x == "q" => {
+            println!("L8r sk8r");
             true
         }
         x if x == "quit" => {
+            println!("L8r brah");
             true
         }
         _ => {
