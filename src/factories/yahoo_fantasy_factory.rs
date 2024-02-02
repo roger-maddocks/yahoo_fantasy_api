@@ -6,6 +6,7 @@ use std::fmt::{Debug, Formatter};
 use roxmltree::ExpandedName;
 // use serde_xml;
 use serde_json::Value;
+use serde_xml_rs::from_str;
 use crate::builders::roster_builder::Roster;
 use crate::models::player::{NhlFranchise, Player, Position};
 use crate::models::player::Position::C;
@@ -79,7 +80,7 @@ impl YahooFantasyFactory {
     ///
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
         let url = env!["YAHOO_V2_URL"]
-            .to_string() + "/league/427.l.28172/players;count=5;status=A;sort=PTS";
+            .to_string() + "/league/427.l.28172/players;count=1;status=A;sort=PTS";
         let client = reqwest::Client::new();
 
         self.yahoo_client.generate_get_request_headers().await;
@@ -94,7 +95,14 @@ impl YahooFantasyFactory {
             .await
             .unwrap();
 
-        let doc = roxmltree::Document::parse(&response);
+        println!("result's: {:?}" , &response);
+        println!("resulting no newlines: {:?}" , &response.replace("\n",""));
+
+        let free_agents: Vec<YahooPlayer> = from_str(&response).unwrap();
+        println!("faaaaa's: {:?}" , free_agents);
+
+
+        // let doc = roxmltree::Document::parse(&response);
 
         // for node in doc.unwrap().descendants() {
         //     if node.tag_name() != ExpandedName::from("") {
@@ -105,9 +113,10 @@ impl YahooFantasyFactory {
         //     }
         // }
 
-        for node in doc.unwrap().descendants() {
-            println!("key: {:?} | val: {:?}" , node.tag_name().name(), node.text());
-        }
+        // println!(" tag: {:?} | key: {:?} | val: {:?}" , node.tag_name(), node.tag_name().name(), node.text());
+        // for node in doc.unwrap().descendants() {
+        //     println!(" tag: {:?} | key: {:?} | val: {:?}" , node.tag_name(), node.tag_name().name(), node.text());
+        // }
         //
         // for node in doc.unwrap().descendants() {
         //     if node.tag_name() != ExpandedName::from("") {

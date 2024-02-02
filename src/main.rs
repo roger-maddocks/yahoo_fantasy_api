@@ -11,6 +11,7 @@ use std::error::Error;
 use std::ops::Add;
 use std::io::stdin;
 use futures::{FutureExt, TryFutureExt};
+use crate::models::collision_report::CollisionReport;
 use crate::models::fantasy_week::FantasyWeek;
 
 mod factories;
@@ -20,26 +21,27 @@ mod helpers;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    let mut user_input= "".to_string();
 
     loop {
         // let _= fantasy_factory.await.get_free_agents().await;
         let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
 
-        user_input = get_user_command()
+        let user_input = get_user_command()
             .to_lowercase()
             .trim()
-            .parse()
-            .unwrap();
-
-        if exit_program(&user_input) {
-            println!("L8r sk8r");
-            break
-        }
+            .to_owned();
 
         match user_input {
+            x if exit_program(&x) => {
+                println!("L8r sk8r");
+                break
+            }
             x if x.to_lowercase().trim() == "fa" => {
-                fantasy_factory.await.get_free_agents().await.unwrap()
+                fantasy_factory
+                    .await
+                    .get_free_agents()
+                    .await
+                    .unwrap()
             }
             x if x.to_lowercase().trim() == "wr" => {
                 get_overloaded_report().await;
@@ -47,7 +49,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             x if x.to_lowercase().trim() == "s" => {
                 not_implemented(&x)
             }
-            x => { }
+            x => {
+                println!("{:?} is not a supported command!", x)
+            }
         }
     }
 
@@ -57,16 +61,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn get_overloaded_report() {
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
-
-    // for i in 14..=14 {
     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
 
     week_index.push(1);
     weekly_reports.push(report);
 
-    // }
-
-    let mut report_base = week_index.iter().zip(weekly_reports.iter());
+    let mut report_base = week_index
+        .iter()
+        .zip(weekly_reports.iter());
     let mut indexed_overloaded_report_iter = report_base.clone();
     // let mut indexed_collision_report_iter = report_base.clone();
 
@@ -96,8 +98,8 @@ fn get_user_report_bounds() -> u64 {
     input.trim().to_lowercase().parse().expect("User did not enter numeric value!")
 }
 
-fn exit_program(input: &String) -> bool {
-    match input.to_lowercase().trim() {
+fn exit_program(input: &str) -> bool {
+    match input {
         x if x == "q" => {
             true
         }
@@ -122,12 +124,16 @@ fn get_user_command() -> String {
         .read_line(&mut input)
         .expect("Issue reading User input!");
     input
+        .to_lowercase()
+        .trim()
+        .parse()
+        .unwrap()
 }
 
 fn print_program_options() {
     println!("Enter \"S\" for initial setup.");
     println!("Enter \"FA\" for Free Agency operations.");
-    println!("Enter \"WR\" to view report from specific week.");
+    println!("Enter \"WR\" to view Week Report from specific week.");
     println!("Enter \"Q\" to quit.");
 }
 
@@ -140,7 +146,7 @@ async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)
 ///3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.
 ///2 Centers => No collisions guaranteed
 async fn get_my_collision_report(indexed_report: &mut Option<(&u64, &Report)>, factory: &YahooFantasyFactory) {
-    // let mut my_roster = factory.get_my_roster().await.unwrap();
+    // let mut my_roster = factory.get_my_roster().await;
     // let mut my_base_collision_report = CollisionReport::new(
     //     my_roster,
     //     Default::default(),
