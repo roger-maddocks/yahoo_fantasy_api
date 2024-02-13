@@ -17,13 +17,12 @@ mod factories;
 mod models;
 mod builders;
 mod helpers;
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+
     let mut user_input= "".to_string();
 
     loop {
-        // let _= fantasy_factory.await.get_free_agents().await;
         let mut fantasy_factory = YahooFantasyFactory::new_factory(League::Nhl).shared();
 
         user_input = get_user_command();
@@ -47,6 +46,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
             x if x == "cd" => {
                 not_implemented(&x)
             }
+
+            x if x == "stat categories" => {
+                fantasy_factory.await.get_league_stat_categories().await.unwrap()
+            }
             x => {
                 println!("Sorry but there is no functionality associated with {:?}.", x);
             }
@@ -56,35 +59,31 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn print_program_options() {
+    println!("Enter \"S\" for initial setup.");
+    println!("Enter \"Stat Categories\" for Free Agency operations.");
+    println!("Enter \"FA\" for Free Agency operations.");
+    println!("Enter \"WR\" to view Week Report from specific week.");
+    println!("Enter \"CR\" to view Collision Report from specific week.");
+    println!("Enter \"CD\" to view Commissioner Dashboard from specific week.");
+    println!("Enter \"Q\" to quit.");
+}
+
 async fn get_overloaded_report() {
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
-
-    // for i in 14..=14 {
     let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
 
     week_index.push(1);
     weekly_reports.push(report);
 
-    // }
-
     let mut report_base = week_index.iter().zip(weekly_reports.iter());
     let mut indexed_overloaded_report_iter = report_base.clone();
-    // let mut indexed_collision_report_iter = report_base.clone();
 
     for _ in 0..weekly_reports.len() {
         generate_overloaded_reports(&mut indexed_overloaded_report_iter.next())
             .await;
     }
-
-    // for _ in 0..weekly_reports.iter().count() {
-    // get_my_collision_report(&mut indexed_collision_report_iter.next())
-    //     .await;
-    // }
-
-    // let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
-    // let _ = generate_overloaded_reports(fantasy_factory.await.yahoo_client)
-    // not_implemented(&x)
 }
 
 fn get_user_report_bounds() -> u64 {
@@ -130,14 +129,6 @@ fn get_user_command() -> String {
         .unwrap()
 }
 
-fn print_program_options() {
-    println!("Enter \"S\" for initial setup.");
-    println!("Enter \"FA\" for Free Agency operations.");
-    println!("Enter \"WR\" to view Week Report from specific week.");
-    println!("Enter \"CR\" to view Collision Report from specific week.");
-    println!("Enter \"CD\" to view Commissioner Dashboard from specific week.");
-    println!("Enter \"Q\" to quit.");
-}
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
     teams_with_four_games(indexed_report).await;

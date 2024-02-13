@@ -80,12 +80,12 @@ impl YahooFantasyFactory {
     ///
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
         let url = env!["YAHOO_V2_URL"]
-            .to_string() + "/league/427.l.28172/players;count=1;status=A;sort=PTS";
+            .to_string() +"/league/427.l.28172/players;player_keys=427.p.5697/stats";// "/league/427.l.28172/players;count=1;status=A;sort=PTS";
         let client = reqwest::Client::new();
 
         self.yahoo_client.generate_get_request_headers().await;
 
-        let response = client//: YahooPlayers = client
+        let response = client
             .get(url)
             .headers(self.yahoo_client.request_headers.clone())
             .send()
@@ -161,6 +161,28 @@ impl YahooFantasyFactory {
 
         Ok(())
     }
+    pub async fn get_league_stat_categories(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
+        let url = env!["YAHOO_V2_URL"]
+            .to_string() +"/game/nhl/stat_categories";// "/league/427.l.28172/players;count=1;status=A;sort=PTS";
+        let client = reqwest::Client::new();
+
+        self.yahoo_client.generate_get_request_headers().await;//needs to happen on build
+
+        let response = client
+            .get(url)
+            .headers(self.yahoo_client.request_headers.clone())
+            .send()
+            .await
+            .unwrap()
+            .text()
+            .await
+            .unwrap();
+
+        println!("dummy head: {:?}" , &response.replace("\n",""));
+
+        Ok(())
+    }
+
     pub async fn get_league_resource(&self) -> Result<String, Error> {
         let url = env!["YAHOO_V2_URL"].to_string() + "/users;use_login=1/games;game_keys=nhl/teams";
         let client = reqwest::Client::new();
