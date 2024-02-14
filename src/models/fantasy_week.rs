@@ -36,7 +36,6 @@ impl FantasyWeek {
         FantasyWeek::new(week_number)
     }
 
-    //can be changed to array due to known size? Any benefit?
     pub fn get_week_range(
         &self,
         first_week_of_range: u64,

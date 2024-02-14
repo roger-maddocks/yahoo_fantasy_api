@@ -1,4 +1,4 @@
-use crate::factories::weekly_data_factory::{teams_with_four_games, teams_with_three_loaded_games};
+use crate::factories::weekly_data_factory;
 use crate::factories::yahoo_fantasy_factory::{League, YahooFantasyFactory};
 use crate::models::{report::Report, player, scheduled_games, team, yahoo_auth_profile };
 use anyhow;
@@ -12,6 +12,10 @@ use std::ops::Add;
 use std::io::stdin;
 use futures::{FutureExt, TryFutureExt};
 use crate::models::fantasy_week::FantasyWeek;
+use helpers::{
+    interface_helpers::{user_requests_free_agents, user_requests_weekly_reports, exit_program, get_user_command, get_user_report_bounds},
+    visual_helpers::{not_implemented}
+};
 
 mod factories;
 mod models;
@@ -31,11 +35,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
             x if exit_program(&x) => {
                 break
             }
-            x if x == "fa" => {
+            x if user_requests_free_agents(&x) => {
                 fantasy_factory.await.get_free_agents().await.unwrap()
             }
-            x if x == "wr" => {
+            x if user_requests_weekly_reports(&x) => {
                 get_overloaded_report().await;
+            }
+            x if x == "tw" => {
+                not_implemented(&x)
+                // get_this_weeks_overloaded_report().await;
+            }
+            x if x == "nw" => {
+                not_implemented(&x)
+                // get_next_weeks_overloaded_report().await;
+            }
+            x if x == "sc" => {
+                fantasy_factory.await.get_league_stat_categories().await.unwrap()
             }
             x if x == "s" => {
                 not_implemented(&x)
@@ -46,10 +61,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             x if x == "cd" => {
                 not_implemented(&x)
             }
-
-            x if x == "stat categories" => {
-                fantasy_factory.await.get_league_stat_categories().await.unwrap()
-            }
             x => {
                 println!("Sorry but there is no functionality associated with {:?}.", x);
             }
@@ -59,20 +70,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn print_program_options() {
-    println!("Enter \"S\" for initial setup.");
-    println!("Enter \"Stat Categories\" for Free Agency operations.");
-    println!("Enter \"FA\" for Free Agency operations.");
-    println!("Enter \"WR\" to view Week Report from specific week.");
-    println!("Enter \"CR\" to view Collision Report from specific week.");
-    println!("Enter \"CD\" to view Commissioner Dashboard from specific week.");
-    println!("Enter \"Q\" to quit.");
-}
-
 async fn get_overloaded_report() {
     let mut week_index = vec![];
     let mut weekly_reports: Vec<Report> = vec![];
-    let report = factories::weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
+    let report = weekly_data_factory::get_loaded_schedule_report(&FantasyWeek::new(get_user_report_bounds())).await;
 
     week_index.push(1);
     weekly_reports.push(report);
@@ -86,53 +87,10 @@ async fn get_overloaded_report() {
     }
 }
 
-fn get_user_report_bounds() -> u64 {
-    println!("Enter which week (1 - 26) you would like the report for.");
-
-    let mut input = String::new();
-    stdin()
-        .read_line(&mut input)
-        .expect("Issue reading User input!");
-
-    input.trim().to_lowercase().parse().expect("User did not enter numeric value!")
-}
-
-fn exit_program(input: &str) -> bool {
-    match input {
-        x if x == "q" => {
-            true
-        }
-        x if x == "quit" => {
-            true
-        }
-        _ => {
-            false
-        }
-    }
-}
-
-fn not_implemented(x: &str) {
-    println!("Whoops, I misguided you. The {:?} functionality is not supported yet!", x);
-}
-
-fn get_user_command() -> String {
-    print_program_options();
-
-    let mut input = String::new();
-    stdin()
-        .read_line(&mut input)
-        .expect("Issue reading User input!");
-    input
-        .to_lowercase()
-        .trim()
-        .parse()
-        .unwrap()
-}
-
 
 async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
-    teams_with_four_games(indexed_report).await;
-    teams_with_three_loaded_games(indexed_report).await;
+    weekly_data_factory::teams_with_four_games(indexed_report).await;
+    weekly_data_factory::teams_with_three_loaded_games(indexed_report).await;
 }
 
 ///using my roster, check each position for days with more players than slots available

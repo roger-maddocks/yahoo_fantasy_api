@@ -1,5 +1,17 @@
 use crate::models::report::Report;
 
+pub fn print_program_options() {
+    println!("Enter \"S\" for initial setup.");
+    println!("Enter \"SC\" for tracked stat categories.");
+    println!("Enter \"FA\" for Free Agency operations.");
+    println!("Enter \"WR\" to view Week Report from specific week.");
+    println!("Enter \"TW\" to view Week Report for This Week.");
+    println!("Enter \"NW\" to view Week Report for Next Week.");
+    println!("Enter \"CR\" to view Collision Report from specific week.");
+    println!("Enter \"CD\" to view Commissioner Dashboard from specific week.");
+    println!("Enter \"Q\" to quit.");
+}
+
 pub fn format_collision_report_block(this_indexed_report: &mut (&u64, &Report)) {
     println!(" ------------------");
     println!("|     WEEK {:?}      |", this_indexed_report.0.clone());
@@ -30,6 +42,11 @@ pub fn format_based_on_description(description: &str) {
         _ => panic!("Error formatting front/back description"),
     }
 }
+
+pub fn not_implemented(x: &str) {
+    println!("Whoops, I misguided you. The {:?} functionality is not supported yet!", x);
+}
+
 fn format_week_starting_block_separator(week: u64) {
     match week {
         x if x < 10 => {
@@ -41,3 +58,4 @@ fn format_week_starting_block_separator(week: u64) {
         _ => panic!("Error formatting week print"),
     }
 }
+

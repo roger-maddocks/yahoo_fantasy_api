@@ -1,3 +1,5 @@
+use std::io::stdin;
+use crate::helpers::visual_helpers::print_program_options;
 
 pub fn get_day_from_number(day: &u64) -> String {
     let mut named_day = "PANIK";
@@ -13,3 +15,4 @@ pub fn get_day_from_number(day: &u64) -> String {
     }
     named_day.to_string()
 }
+

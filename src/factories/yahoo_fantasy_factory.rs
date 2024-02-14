@@ -80,7 +80,7 @@ impl YahooFantasyFactory {
     ///
     pub async fn get_free_agents(&mut self) -> Result<(), roxmltree::Error> {//-> Result<(), Error> {
         let url = env!["YAHOO_V2_URL"]
-            .to_string() +"/league/427.l.28172/players;player_keys=427.p.5697/stats";// "/league/427.l.28172/players;count=1;status=A;sort=PTS";
+            .to_string() +"/league/" + env!["YAHOO_LEAGUE_KEY"] + "/players;player_keys=427.p.5697/stats";// "/league/427.l.28172/players;count=1;status=A;sort=PTS";
         let client = reqwest::Client::new();
 
         self.yahoo_client.generate_get_request_headers().await;

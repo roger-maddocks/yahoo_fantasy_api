@@ -65,4 +65,6 @@ impl Report {
             index: 0,
         }
     }
+
+    // pub fn update
 }
