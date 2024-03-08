@@ -1,5 +1,5 @@
-pub mod fantasy_week;
 pub mod collision_report;
+pub mod fantasy_week;
 pub mod my_sports_feed_profile;
 pub mod player;
 pub mod regular_season;
@@ -8,3 +8,4 @@ pub mod roster;
 pub mod scheduled_games;
 pub mod team;
 pub mod yahoo_auth_profile;
+pub mod yahoo_player;

@@ -1,4 +1,4 @@
-use crate::player::{Player};
+use crate::player::Player;
 
 pub struct FantasyRoster {
     pub center_one: Player,
@@ -11,10 +11,8 @@ pub struct FantasyRoster {
     pub defenseman_two: Player,
     pub goaltender_one: Player,
     pub goaltender_two: Player,
-    pub flex_one : Player,
-    pub flex_two : Player,
-    pub flex_three : Player,
-    pub flex_four : Player,
+    pub flex_one: Player,
+    pub flex_two: Player,
+    pub flex_three: Player,
+    pub flex_four: Player,
 }
-
-

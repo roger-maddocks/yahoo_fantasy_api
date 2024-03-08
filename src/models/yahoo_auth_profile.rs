@@ -1,70 +1,41 @@
+use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 use anyhow;
-use anyhow::Error;
 use oauth2;
 use oauth2::http::{HeaderMap, HeaderValue};
 use oauth2::url;
 use oauth2::{ClientId, ClientSecret, RevocableToken};
+use serde::Serialize;
 use std::str::FromStr;
 use thiserror::Error;
 use url::{form_urlencoded, Url};
 
-pub struct YahooConnection {
-    pub(crate) token_params: YahooTokenRequest,
-    pub(crate) auth_params: YahooAuthRequest,
-    pub(crate) refresh_token_params: YahooRefreshTokenRequest,
-    pub(crate) headers: HeaderMap,
-    pub(crate) token_url: String,
-    pub(crate) auth_url: String,
-    pub(crate) fantasy_sports_url: String,
-    pub(crate) access_token: String,
+#[derive(Clone)]
+pub struct YahooAuthClient {
+    pub token_params: YahooTokenRequest,
+    pub auth_params: YahooAuthRequest,
+    pub refresh_token_params: YahooRefreshTokenRequest,
+    pub token_url: String,
+    pub auth_url: String,
+    pub fantasy_sports_url: String,
+    pub request_headers: HeaderMap,
+    pub access_token: String,
+    pub auth_headers: HeaderMap,
 }
 
-impl YahooConnection {
-    pub fn new() -> Self {
-        YahooConnection {
-            token_params: YahooTokenRequest::new(),
-            auth_params: YahooAuthRequest::new(),
-            refresh_token_params: YahooRefreshTokenRequest::new(),
-            headers: generate_headers(
-                ClientId::new(env!("YAHOO_CLIENT_ID").to_string()),
-                Some(ClientSecret::new(env!("YAHOO_CLIENT_SECRET").to_string())).unwrap(),
-                Default::default(),
-            ),
-            token_url: env!("YAHOO_TOKEN_URL").to_string(),
-            auth_url: env!("YAHOO_AUTH_ENDPOINT").to_string() + "?",
-            // refresh_token: env!("YAHOO_FANTASY_REFRESH_TOKEN").to_string(),
-            fantasy_sports_url: env!("YAHOO_V2_URL").to_string() + "/",
-            access_token: "".to_string(),
-        }
+impl YahooAuthClient {
+    pub fn builder() -> YahooAuthClientBuilder {
+        YahooAuthClientBuilder::default()
     }
-
-    pub fn get_redirect_url_for_auth_code() {
-        let auth = YahooConnection::new();
-        let encoded_string =
-            serde_urlencoded::to_string(&auth.auth_params).expect("serializing issue!");
-        let url = auth.auth_url.to_string() + &encoded_string;
-        println!("{:#?}", url);
-    }
-
-    pub async fn get_access_token(&self) -> Option<String> {
-        let client = reqwest::Client::new();
-        let response = client
-            .post(&self.token_url)
-            .form(&self.refresh_token_params)
-            .headers(self.headers.clone())
-            .send()
-            .await
-            .expect("Get token error!")
-            .text()
-            .await
-            .unwrap();
-
-        Some(response)
+    pub async fn generate_get_request_headers(&mut self) {
+        self.request_headers.append(
+            "Authorization",
+            HeaderValue::from_str(&format!("Bearer {}", self.access_token)).unwrap(),
+        );
     }
 }
 
 ///Yahoo required fields for initiating auth request
-#[derive(Default, serde::Serialize, serde::Deserialize)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Clone)]
 pub struct YahooAuthRequest {
     client_id: String,
     client_secret: String,
@@ -83,7 +54,7 @@ impl YahooAuthRequest {
 }
 
 ///Yahoo required fields for acquiring access token
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooTokenRequest {
     client_id: String,
     client_secret: String,
@@ -104,7 +75,7 @@ impl YahooTokenRequest {
 }
 
 ///Yahoo required fields for refreshing access token
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooRefreshTokenRequest {
     grant_type: String,
     client_id: String,
@@ -118,27 +89,63 @@ impl YahooRefreshTokenRequest {
             grant_type: "refresh_token".to_string(),
             client_id: env!("YAHOO_CLIENT_ID").to_string(),
             client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
-            redirect_uri: "oob".to_string(), //"https://www.google.com".to_string(),
-            refresh_token: env!("YAHOO_REFRESH_TOKEN").to_string(), //env!("YAHOO_REFRESH_TOKEN").to_string()//"ABozVWW1mLQ5sPJ_JjhZkKMu1pHU~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E".to_string()//
+            redirect_uri: "oob".to_string(),
+            refresh_token: env!("YAHOO_REFRESH_TOKEN").to_string(),
         }
     }
 }
 
 /// Yahoo's response values when requesting token refresh
-#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct YahooRefreshTokenResponse {
-    access_token: String,
-    refresh_token: String,
-    expires_in: u64,
-    token_type: String,
+    pub access_token: Option<String>,
+    pub refresh_token: Option<String>,
+    pub expires_in: Option<u64>,
+    pub token_type: Option<String>,
 }
 
-fn generate_headers(
+impl YahooRefreshTokenResponse {
+    pub fn new() -> Self {
+        YahooRefreshTokenResponse {
+            access_token: None,
+            refresh_token: None,
+            expires_in: None,
+            token_type: None,
+        }
+    }
+}
+
+///Yahoo required fields for Get request
+#[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct YahooGetRequest {
+    pub client_id: String,
+    pub client_secret: String,
+    pub authorization: String,
+    pub refresh_token: String,
+}
+impl YahooGetRequest {
+    pub fn new() -> Self {
+        YahooGetRequest {
+            client_id: env!("YAHOO_CLIENT_ID").to_string(),
+            client_secret: env!("YAHOO_CLIENT_SECRET").to_string(),
+            authorization: "".to_string(),
+            refresh_token: "".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, serde::Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct YahooResponses {
+    pub tokens: Vec<YahooRefreshTokenResponse>,
+}
+
+pub(crate) fn generate_refresh_token_headers(
     client_id: ClientId,
     secret: ClientSecret,
-    mut headers: HeaderMap,
 ) -> HeaderMap {
+    let mut headers: HeaderMap = Default::default();
     let urlencoded_id: String = form_urlencoded::byte_serialize(&client_id.as_bytes()).collect();
     let urlencoded_secret: String =
         form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();
@@ -155,7 +162,6 @@ fn generate_headers(
             .parse()
             .unwrap(),
     );
-
     headers
 }
 
@@ -176,5 +182,3 @@ pub enum YahooError {
     #[error("construcing yahoo! finance client failed")]
     BuilderFailed,
 }
-
-// APFQVmXz1I1aQopVfPek1xpc_6V4~000~yCpm41AyJxoTlNjhjmJCmCvA1Fmj9LjgQr.E

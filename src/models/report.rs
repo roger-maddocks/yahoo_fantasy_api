@@ -4,7 +4,7 @@ use crate::scheduled_games::Games;
 use crate::team::Team;
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Report {
     pub fantasy_weeks: Vec<FantasyWeek>,
     pub teams_playing_four_or_more: HashMap<Team, i32>,
@@ -65,4 +65,6 @@ impl Report {
             index: 0,
         }
     }
+
+    // pub fn update
 }
