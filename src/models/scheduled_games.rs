@@ -2,7 +2,7 @@ use crate::team::Team;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, serde::Deserialize, Clone )]
+#[derive(Debug, Serialize, serde::Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Games {
     pub games: Vec<Game>,

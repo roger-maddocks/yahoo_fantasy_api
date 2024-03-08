@@ -1,8 +1,8 @@
+use crate::builders::roster_builder::Roster;
+use crate::models::player;
 use crate::player::Player;
 use chrono::NaiveDate;
 use std::collections::HashMap;
-use crate::builders::roster_builder::Roster;
-use crate::models::player;
 
 enum RegularSeason {
     StartDate(NaiveDate),
@@ -45,7 +45,7 @@ impl CollisionReport {
             start_week: Default::default(),
             end_week: Default::default(),
             season_collisions: 0,
-            weekly_collisions: HashMap::new()
+            weekly_collisions: HashMap::new(),
         }
     }
 }

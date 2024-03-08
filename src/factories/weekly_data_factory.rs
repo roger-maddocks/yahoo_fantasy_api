@@ -1,10 +1,10 @@
+use crate::helpers::visual_helpers;
 use crate::models::fantasy_week::FantasyWeek;
 use crate::models::report::Report;
 use crate::scheduled_games::Games;
 use crate::team::Team;
 use chrono::{Duration, NaiveDate};
 use std::collections::HashMap;
-use crate::helpers::visual_helpers;
 
 ///
 ///
@@ -27,12 +27,12 @@ pub async fn get_loaded_schedule_report(this_week: &FantasyWeek) -> Report {
         report.daily_games.push(get_games_for_day(&days.1).await);
 
         let report_iter = report
-                .daily_games
-                .iter()
-                .nth(report.index as usize)
-                .unwrap()
-                .games
-                .iter();
+            .daily_games
+            .iter()
+            .nth(report.index as usize)
+            .unwrap()
+            .games
+            .iter();
 
         report.home_teams = report_iter
             .to_owned()
@@ -91,10 +91,8 @@ pub async fn get_loaded_schedule_report(this_week: &FantasyWeek) -> Report {
     report
 }
 
-
 /// Use get_games_for_day_test to see full json returned
 async fn get_games_for_day(date: &NaiveDate) -> Games {
-
     let daily_url: String =
         "https://api.mysportsfeeds.com/v2.1/pull/nhl/2023-regular/games.json?date=".to_owned();
 
@@ -112,8 +110,7 @@ async fn get_games_for_day(date: &NaiveDate) -> Games {
 }
 
 pub async fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>) {
-
-    let mut this_indexed_report= indexed_report.unwrap();
+    let mut this_indexed_report = indexed_report.unwrap();
     let mut report = this_indexed_report.1;
 
     visual_helpers::print_starting_block(this_indexed_report.0.to_owned());
@@ -135,21 +132,22 @@ pub async fn teams_with_four_games(indexed_report: &mut Option<(&u64, &Report)>)
 }
 
 pub async fn teams_with_three_loaded_games(indexed_report: &mut Option<(&u64, &Report)>) {
-
-    let mut this_indexed_report= indexed_report.unwrap();
+    let mut this_indexed_report = indexed_report.unwrap();
     let mut report = this_indexed_report.1;
 
     get_loaded_teams(
         &mut report.game_count.clone(),
         &mut report.front_heavy_teams.clone(),
         "front loaded",
-    ).await;
+    )
+    .await;
 
     get_loaded_teams(
         &mut report.game_count.to_owned(),
         &mut report.back_heavy_teams.to_owned(),
         "back loaded",
-    ).await;
+    )
+    .await;
 }
 
 pub async fn get_loaded_teams(
@@ -201,7 +199,6 @@ fn update_load_count(game_count: &mut HashMap<Team, i32>, team_collection: &Vec<
 }
 
 fn format_team_workload_separator(description: &str) {
-
     visual_helpers::format_based_on_description(description);
     println!(
         "| Teams playing less than four games with {} lineup |",

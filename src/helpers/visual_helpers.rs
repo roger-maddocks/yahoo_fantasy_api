@@ -30,7 +30,6 @@ pub fn print_starting_block(week: u64) {
     println!("------------------------------------");
 }
 
-
 pub fn format_based_on_description(description: &str) {
     match description {
         x if x.contains("front") => {
@@ -44,7 +43,10 @@ pub fn format_based_on_description(description: &str) {
 }
 
 pub fn not_implemented(x: &str) {
-    println!("Whoops, I misguided you. The {:?} functionality is not supported yet!", x);
+    println!(
+        "Whoops, I misguided you. The {:?} functionality is not supported yet!",
+        x
+    );
 }
 
 fn format_week_starting_block_separator(week: u64) {
@@ -58,4 +60,3 @@ fn format_week_starting_block_separator(week: u64) {
         _ => panic!("Error formatting week print"),
     }
 }
-

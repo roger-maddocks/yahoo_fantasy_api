@@ -1,10 +1,10 @@
+use crate::models::player::Position;
 use chrono::NaiveDate;
 use serde::Deserialize;
-use crate::models::player::Position;
 
-#[derive(Default, serde::Serialize,Deserialize,  Debug, Clone)]
+#[derive(Default, serde::Serialize, Deserialize, Debug, Clone)]
 pub struct YahooPlayers {
-    players: Option<Vec<YahooPlayer>>
+    players: Option<Vec<YahooPlayer>>,
 }
 
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -31,12 +31,11 @@ pub struct YahooPlayer {
     player_notes_last_timestamp: Option<u64>,
 }
 
-
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Keeper {
     status: Option<String>,
     cost: Option<String>,
-    kept: Option<String>
+    kept: Option<String>,
 }
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug, Clone)]
 pub struct Name {

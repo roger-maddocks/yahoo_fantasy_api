@@ -1,13 +1,13 @@
+use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 use anyhow;
 use oauth2;
 use oauth2::http::{HeaderMap, HeaderValue};
-use oauth2::{url};
+use oauth2::url;
 use oauth2::{ClientId, ClientSecret, RevocableToken};
-use std::str::FromStr;
 use serde::Serialize;
+use std::str::FromStr;
 use thiserror::Error;
 use url::{form_urlencoded, Url};
-use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 
 #[derive(Clone)]
 pub struct YahooAuthClient {
@@ -115,7 +115,6 @@ impl YahooRefreshTokenResponse {
     }
 }
 
-
 ///Yahoo required fields for Get request
 #[derive(Default, serde::Serialize, serde::Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -136,32 +135,35 @@ impl YahooGetRequest {
     }
 }
 
-#[derive(Debug, Serialize, serde::Deserialize, Clone )]
+#[derive(Debug, Serialize, serde::Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct YahooResponses {
-    pub tokens: Vec<YahooRefreshTokenResponse>
+    pub tokens: Vec<YahooRefreshTokenResponse>,
 }
 
 pub(crate) fn generate_refresh_token_headers(
     client_id: ClientId,
     secret: ClientSecret,
 ) -> HeaderMap {
-    let mut headers:HeaderMap = Default::default();
+    let mut headers: HeaderMap = Default::default();
     let urlencoded_id: String = form_urlencoded::byte_serialize(&client_id.as_bytes()).collect();
     let urlencoded_secret: String =
         form_urlencoded::byte_serialize(secret.secret().as_bytes()).collect();
     let b64_credential = base64::encode(&format!("{}:{}", &urlencoded_id, urlencoded_secret));
 
-    headers.append( "Authorization-Code", HeaderValue::from_str(&format!("Basic {}", &b64_credential))
-        .unwrap());
-    headers.append( "Content-Type", "application/x-www-form-urlencoded"
+    headers.append(
+        "Authorization-Code",
+        HeaderValue::from_str(&format!("Basic {}", &b64_credential)).unwrap(),
+    );
+    headers.append(
+        "Content-Type",
+        "application/x-www-form-urlencoded"
             .to_string()
             .parse()
             .unwrap(),
     );
     headers
 }
-
 
 #[derive(Error, Debug)]
 pub enum YahooError {

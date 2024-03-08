@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::models::player::Position::C;
-use crate::player::NhlFranchise::ColoradoAvalanche;
 use crate::models::team::Team;
+use crate::player::NhlFranchise::ColoradoAvalanche;
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,7 +11,7 @@ pub struct Player {
     pub prioritize: bool,
     pub franchise: NhlFranchise,
     pub team: Team,
-    pub yahoo_team_key: String
+    pub yahoo_team_key: String,
 }
 
 impl Player {
@@ -22,7 +22,7 @@ impl Player {
         prioritize: bool,
         franchise: NhlFranchise,
         team: Team,
-        yahoo_team_key: String
+        yahoo_team_key: String,
     ) -> Player {
         Self {
             name: Option::from(Name::new(first_name, last_name)),
@@ -30,7 +30,7 @@ impl Player {
             prioritize,
             franchise,
             team,
-            yahoo_team_key
+            yahoo_team_key,
         }
     }
     pub fn default() -> Player {
@@ -40,7 +40,7 @@ impl Player {
             prioritize: false,
             franchise: ColoradoAvalanche,
             team: Default::default(),
-            yahoo_team_key: "".to_string()
+            yahoo_team_key: "".to_string(),
         }
     }
 }
@@ -64,8 +64,8 @@ pub enum NhlFranchise {
     VancouverCanucks,
 }
 
-impl Default for NhlFranchise { 
-    fn default () -> Self {
+impl Default for NhlFranchise {
+    fn default() -> Self {
         ColoradoAvalanche
     }
 }
@@ -88,7 +88,7 @@ pub struct Name {
     pub ascii_last: String,
 }
 impl Name {
-    pub fn new(first: String, last: String) -> Name{
+    pub fn new(first: String, last: String) -> Name {
         Name {
             full_name: first.clone() + &last.clone(),
             first_name: first,
@@ -96,14 +96,12 @@ impl Name {
             ascii_first: "".to_string(),
             ascii_last: "".to_string(),
         }
-
-
     }
 }
 
-    // pub fn default() -> Self {
-    //     Self
-    // }
+// pub fn default() -> Self {
+//     Self
+// }
 
 // pub fn collides_with(/*&self,*/ player_in_question: Player, ) -> CollisionReport {
 

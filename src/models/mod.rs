@@ -1,5 +1,5 @@
-pub mod fantasy_week;
 pub mod collision_report;
+pub mod fantasy_week;
 pub mod my_sports_feed_profile;
 pub mod player;
 pub mod regular_season;

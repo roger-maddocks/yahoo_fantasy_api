@@ -1,6 +1,6 @@
-use std::cell::RefCell;
-use crate::models::player::{Player, Position};
 use crate::models::player::Position::{C, D, LW, RW};
+use crate::models::player::{Player, Position};
+use std::cell::RefCell;
 
 #[derive(Debug, Default, Clone)]
 pub struct Roster {
@@ -9,9 +9,7 @@ pub struct Roster {
 
 impl Roster {
     pub fn new() -> Roster {
-        Roster {
-            players: vec![],
-        }
+        Roster { players: vec![] }
     }
 
     pub fn add_player(&mut self, player: Player) {
@@ -25,13 +23,13 @@ impl Roster {
         let mut players = vec![];
         let position_iter = positions.iter();
 
-        position_iter.for_each(|x|
+        position_iter.for_each(|x| {
             for player in &self.players {
                 if player.position.contains(x) {
                     players.push(player.clone())
                 }
             }
-        );
+        });
         players
     }
 }

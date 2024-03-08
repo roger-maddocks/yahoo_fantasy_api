@@ -5,16 +5,13 @@ use serde::{Deserialize, Serialize};
 pub struct Team {
     pub abbreviation: String,
     #[serde(rename = "id")]
-    pub msf_id: u16//NhlFranchise
+    pub msf_id: u16, //NhlFranchise
 }
 impl Team {
-    pub fn new(
-        abbreviation: String,
-        msf_id: u16
-    ) -> Team {
+    pub fn new(abbreviation: String, msf_id: u16) -> Team {
         Self {
             abbreviation,
-            msf_id
+            msf_id,
         }
     }
     pub fn default() -> Team {
@@ -25,13 +22,11 @@ impl Team {
     }
 }
 
-
 impl Clone for Team {
     fn clone(&self) -> Self {
         Team {
             abbreviation: self.abbreviation.clone(),
-            msf_id: self.msf_id.clone()
-            // franchise: Default::default(),
+            msf_id: self.msf_id.clone(), // franchise: Default::default(),
         }
     }
 }
