@@ -10,11 +10,11 @@ use crate::builders::yahoo_auth_client_builder::YahooAuthClientBuilder;
 use crate::models::player::Position::C;
 use crate::models::player::{NhlFranchise, Player, Position};
 use crate::models::team::Team;
-use serde_json::Value;
-use serde_xml_rs::from_str;
 use quick_xml;
 use quick_xml::events::Event;
 use quick_xml::Reader;
+use serde_json::Value;
+use serde_xml_rs::from_str;
 
 #[derive(Debug, Copy, Clone)]
 pub enum League {
@@ -113,7 +113,7 @@ impl YahooFantasyFactory {
 
         loop {
             match reader.read_event().unwrap() {
-                Event::Start(e) => count +=1,
+                Event::Start(e) => count += 1,
                 Event::Decl(e) => decl.push(e.into_owned()),
                 Event::Text(e) => txt.push(e.unescape().unwrap().into_owned()),
                 Event::Eof => break,
@@ -200,7 +200,7 @@ impl YahooFantasyFactory {
             .await
             .unwrap();
 
-        println!("dummy head: {:?}", &response.replace("\n", ""));
+        println!("dummy head: {:#?}", &response.replace("\n", ""));
 
         Ok(())
     }

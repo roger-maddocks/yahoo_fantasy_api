@@ -6,8 +6,6 @@ use crate::team::Team;
 use chrono::{Duration, NaiveDate};
 use std::collections::HashMap;
 
-///
-///
 /// # Arguments
 ///
 /// * `week`:
@@ -84,10 +82,8 @@ pub async fn get_loaded_schedule_report(this_week: &FantasyWeek) -> Report {
             }
             _ => panic!("Error while trying to determine front/back heavy schedules"),
         }
-
         report.index += 1
     }
-
     report
 }
 

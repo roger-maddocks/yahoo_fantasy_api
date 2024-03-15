@@ -19,12 +19,6 @@ pub struct Report {
 }
 
 impl Report {
-    pub fn get_top_free_agent_scorers(&self, _position: Position) {
-        //query Yahoo league for FA
-        //Grab top X (5?) by points scored in the previous week
-        //if Position not supplied, just top 5 overall scorers
-    }
-
     pub fn new(
         fantasy_weeks: Vec<FantasyWeek>,
         teams_playing_four_or_more: HashMap<Team, i32>,
@@ -64,6 +58,12 @@ impl Report {
             away_teams: vec![],
             index: 0,
         }
+    }
+
+    pub fn get_top_free_agent_scorers(&self, _position: Position) {
+        //query Yahoo league for FA
+        //Grab top X (5?) by points scored in the previous week
+        //if Position not supplied, just top 5 overall scorers
     }
 
     // pub fn update

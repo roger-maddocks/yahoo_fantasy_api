@@ -24,6 +24,7 @@ mod builders;
 mod factories;
 mod helpers;
 mod models;
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let mut user_input = "".to_string();
@@ -81,17 +82,20 @@ async fn get_overloaded_report() {
     weekly_reports.push(report);
 
     let mut report_base = week_index.iter().zip(weekly_reports.iter());
-    let mut indexed_overloaded_report_iter = report_base.clone();
+    let current_report = &mut report_base.next();
 
-    for _ in 0..weekly_reports.len() {
-        generate_overloaded_reports(&mut indexed_overloaded_report_iter.next()).await;
-    }
+    weekly_data_factory::teams_with_four_games(current_report).await;
+    weekly_data_factory::teams_with_three_loaded_games(current_report).await;
+
+    // for _ in 0..weekly_reports.len() {
+    // }
 }
 
-async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
-    weekly_data_factory::teams_with_four_games(indexed_report).await;
-    weekly_data_factory::teams_with_three_loaded_games(indexed_report).await;
-}
+// async fn generate_overloaded_reports(indexed_report: &mut Option<(&u64, &Report)>) {
+// generate_overloaded_reports(&mut report_base.next()).await;
+// weekly_data_factory::teams_with_four_games(indexed_report).await;
+// weekly_data_factory::teams_with_three_loaded_games(indexed_report).await;
+// }
 
 ///using my roster, check each position for days with more players than slots available
 ///3 Centers (VAN/NYR/NJD) check report for days where all 3 teams play.

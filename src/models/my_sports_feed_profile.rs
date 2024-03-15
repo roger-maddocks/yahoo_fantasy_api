@@ -19,7 +19,7 @@ pub struct ProfileBuilder {
 impl ProfileBuilder {
     pub fn new() -> ProfileBuilder {
         ProfileBuilder {
-            api_key: String::from("163db9fd-bdbe-4bd4-a4b8-15324f"),
+            api_key: String::from(env!("MSF_API_KEY")),
             api_pw: String::from("MYSPORTSFEEDS"),
         }
     }
@@ -35,14 +35,3 @@ impl ProfileBuilder {
         }
     }
 }
-// impl Default for MySportsFeedProfile {
-// fn default() -> Self {
-//     Self {
-//         api_key: "163db9fd-bdbe-4bd4-a4b8-15324f".to_string(),
-//         api_pw: "MYSPORTSFEEDS".to_string()
-//     }
-// }
-// }
-
-// pub fn GetApiKey (&self) -> String { self.api_key }
-// pub fn GetApiPw (&self) -> String { self.api_pw }
